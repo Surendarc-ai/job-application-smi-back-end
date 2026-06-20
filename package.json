@@ -8,7 +8,7 @@
     "dev": "node index.js",
     "start": "node index.js",
     "sam:build": "sam build",
-    "sam:deploy": "sam deploy --guided"
+    "sam:deploy": "bash scripts/deploy.sh"
   },
   "dependencies": {
     "@vendia/serverless-express": "^4.12.6",
