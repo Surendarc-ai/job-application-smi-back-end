@@ -84,29 +84,38 @@ router.put('/:id', async (req, res) => {
     const existing = await Job.findOne(jobScope(req));
     if (!existing) return res.status(404).json({ error: 'Job not found' });
 
-    const payload = {
-      date: date ?? existing.date,
-      customer: customer ?? existing.customer,
-      projectName: projectName ?? existing.projectName,
-      model: req.body.model ?? existing.model,
-      pixel: req.body.pixel ?? existing.pixel,
-      jobNumber: req.body.jobNumber ?? existing.jobNumber,
-      billNo: req.body.billNo ?? existing.billNo,
-      quantity: req.body.quantity ?? existing.quantity,
-      lengthMm: req.body.lengthMm ?? existing.lengthMm,
-      widthMm: req.body.widthMm ?? existing.widthMm,
-      pricePerSqft: req.body.pricePerSqft ?? existing.pricePerSqft,
-      paymentStatus: req.body.paymentStatus ?? existing.paymentStatus,
+    const merged = {
+      date: existing.date,
+      customer: existing.customer,
+      projectName: existing.projectName,
+      model: existing.model,
+      isDC: existing.isDC,
+      dc: Array.isArray(existing.dc)
+        ? existing.dc.map((item) => ({
+          billNo: item.billNo || '',
+          quantity: item.quantity || 0,
+          amount: item.amount || 0,
+        }))
+        : [],
+      pixel: existing.pixel,
+      jobNumber: existing.jobNumber,
+      billNo: existing.billNo,
+      quantity: existing.quantity,
+      lengthMm: existing.lengthMm,
+      widthMm: existing.widthMm,
+      pricePerSqft: existing.pricePerSqft,
+      paymentStatus: existing.paymentStatus,
+      ...req.body,
     };
 
-    if (!payload.date || !payload.customer) {
+    if (!merged.date || !merged.customer) {
       return res.status(400).json({ error: 'Date and customer are required' });
     }
-    if (!String(payload.projectName).trim()) {
+    if (!String(merged.projectName).trim()) {
       return res.status(400).json({ error: 'Project name is required' });
     }
 
-    const updates = buildJobPayload(payload);
+    const updates = buildJobPayload(merged);
 
     const job = await Job.findOneAndUpdate(jobScope(req), updates, { new: true })
       .populate('customer', 'firstName lastName');
