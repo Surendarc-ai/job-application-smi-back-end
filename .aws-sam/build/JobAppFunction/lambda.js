@@ -96250,11 +96250,18 @@ var import_express2 = __toESM(require_express3(), 1);
 
 // models/Job.js
 var import_mongoose4 = __toESM(require_mongoose2(), 1);
+var dcItemSchema = new import_mongoose4.default.Schema({
+  billNo: { type: String, default: "" },
+  quantity: { type: Number, default: 0 },
+  amount: { type: Number, default: 0 }
+}, { _id: false });
 var jobSchema = new import_mongoose4.default.Schema({
   date: { type: Date, required: true },
   customer: { type: import_mongoose4.default.Schema.Types.ObjectId, ref: "Customer", required: true },
   projectName: { type: String, required: true, trim: true },
   model: { type: String, default: "" },
+  isDC: { type: Boolean, default: false },
+  dc: { type: [dcItemSchema], default: [] },
   pixel: { type: String, default: "" },
   jobNumber: { type: String, default: "" },
   billNo: { type: String, default: "" },
@@ -96265,6 +96272,7 @@ var jobSchema = new import_mongoose4.default.Schema({
   totSizeSqFt: { type: Number, default: 0 },
   totSqft: { type: Number, default: 0 },
   totalAmount: { type: Number, default: 0 },
+  remainingDeliverQty: { type: Number, default: 0 },
   paymentStatus: {
     type: String,
     enum: ["Non-Billed", "Billed", "Paid", "Partial"],
@@ -96340,13 +96348,48 @@ function calcJobTotals({ quantity, lengthMm, widthMm, pricePerSqft }) {
     totalAmount: Math.round(totalAmount * 100) / 100
   };
 }
+function calcDcLineAmount({ lengthMm, widthMm, pricePerSqft }, dcQty) {
+  const l = Number(lengthMm) || 0;
+  const w = Number(widthMm) || 0;
+  const price = Number(pricePerSqft) || 0;
+  const q = Number(dcQty) || 0;
+  const totSizeSqFt = l * w * MM2_TO_SQFT;
+  return Math.round(totSizeSqFt * q * price * 100) / 100;
+}
+function calcDcDeliveredQty(dc) {
+  if (!Array.isArray(dc)) return 0;
+  return dc.reduce((sum, item) => sum + (Number(item?.quantity) || 0), 0);
+}
+function calcRemainingDeliverQty(jobQty, dc) {
+  const total = Number(jobQty) || 0;
+  return Math.max(0, Math.round((total - calcDcDeliveredQty(dc)) * 1e4) / 1e4);
+}
+function normalizeDcItems(dc, jobFields = {}) {
+  if (!Array.isArray(dc)) return [];
+  return dc.map((item) => {
+    if (typeof item === "string") {
+      const billNo = item.trim();
+      return billNo ? { billNo, quantity: 0, amount: 0 } : null;
+    }
+    const quantity = Number(item.quantity) || 0;
+    return {
+      billNo: String(item.billNo || "").trim(),
+      quantity,
+      amount: calcDcLineAmount(jobFields, quantity)
+    };
+  }).filter((item) => item && (item.billNo || item.quantity));
+}
 function buildJobPayload(body) {
   const totals = calcJobTotals(body);
+  const dcItems = body.isDC ? normalizeDcItems(body.dc, body) : [];
   return {
     date: new Date(body.date),
     customer: body.customer,
     projectName: String(body.projectName || "").trim(),
     model: body.model || "",
+    isDC: !!body.isDC,
+    dc: dcItems,
+    remainingDeliverQty: calcRemainingDeliverQty(body.quantity, dcItems),
     pixel: body.pixel || "",
     jobNumber: body.jobNumber || "",
     billNo: body.billNo || "",
@@ -96424,27 +96467,34 @@ router2.put("/:id", async (req, res) => {
     }
     const existing = await Job_default.findOne(jobScope(req));
     if (!existing) return res.status(404).json({ error: "Job not found" });
-    const payload = {
-      date: date ?? existing.date,
-      customer: customer ?? existing.customer,
-      projectName: projectName ?? existing.projectName,
-      model: req.body.model ?? existing.model,
-      pixel: req.body.pixel ?? existing.pixel,
-      jobNumber: req.body.jobNumber ?? existing.jobNumber,
-      billNo: req.body.billNo ?? existing.billNo,
-      quantity: req.body.quantity ?? existing.quantity,
-      lengthMm: req.body.lengthMm ?? existing.lengthMm,
-      widthMm: req.body.widthMm ?? existing.widthMm,
-      pricePerSqft: req.body.pricePerSqft ?? existing.pricePerSqft,
-      paymentStatus: req.body.paymentStatus ?? existing.paymentStatus
+    const merged = {
+      date: existing.date,
+      customer: existing.customer,
+      projectName: existing.projectName,
+      model: existing.model,
+      isDC: existing.isDC,
+      dc: Array.isArray(existing.dc) ? existing.dc.map((item) => ({
+        billNo: item.billNo || "",
+        quantity: item.quantity || 0,
+        amount: item.amount || 0
+      })) : [],
+      pixel: existing.pixel,
+      jobNumber: existing.jobNumber,
+      billNo: existing.billNo,
+      quantity: existing.quantity,
+      lengthMm: existing.lengthMm,
+      widthMm: existing.widthMm,
+      pricePerSqft: existing.pricePerSqft,
+      paymentStatus: existing.paymentStatus,
+      ...req.body
     };
-    if (!payload.date || !payload.customer) {
+    if (!merged.date || !merged.customer) {
       return res.status(400).json({ error: "Date and customer are required" });
     }
-    if (!String(payload.projectName).trim()) {
+    if (!String(merged.projectName).trim()) {
       return res.status(400).json({ error: "Project name is required" });
     }
-    const updates = buildJobPayload(payload);
+    const updates = buildJobPayload(merged);
     const job = await Job_default.findOneAndUpdate(jobScope(req), updates, { new: true }).populate("customer", "firstName lastName");
     res.json(job);
   } catch (err) {

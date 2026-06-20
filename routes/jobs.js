@@ -3,7 +3,7 @@ import Job from '../models/Job.js';
 import Customer from '../models/Customer.js';
 import { authMiddleware } from '../middleware/auth.js';
 import { getScopeFilter, getCompanyIdForSave } from '../utils/companyScope.js';
-import { buildJobPayload } from '../utils/jobCalculations.js';
+import { buildJobPayload, getDcQuantityError } from '../utils/jobCalculations.js';
 
 const router = Router();
 router.use(authMiddleware);
@@ -53,6 +53,11 @@ router.post('/', async (req, res) => {
     }
     if (!(await validateCustomer(req, customer))) {
       return res.status(400).json({ error: 'Invalid customer' });
+    }
+
+    const dcError = getDcQuantityError(req.body.quantity, req.body.dc);
+    if (req.body.isDC && dcError) {
+      return res.status(400).json({ error: dcError });
     }
 
     const companyId = getCompanyIdForSave(req);
@@ -113,6 +118,11 @@ router.put('/:id', async (req, res) => {
     }
     if (!String(merged.projectName).trim()) {
       return res.status(400).json({ error: 'Project name is required' });
+    }
+
+    const dcError = getDcQuantityError(merged.quantity, merged.dc);
+    if (merged.isDC && dcError) {
+      return res.status(400).json({ error: dcError });
     }
 
     const updates = buildJobPayload(merged);

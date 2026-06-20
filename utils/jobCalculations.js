@@ -37,6 +37,25 @@ export function calcRemainingDeliverQty(jobQty, dc) {
   return Math.max(0, Math.round((total - calcDcDeliveredQty(dc)) * 10000) / 10000);
 }
 
+export function getDcQuantityError(jobQty, dc) {
+  const base = Number(jobQty) || 0;
+  if (!Array.isArray(dc)) return null;
+
+  for (const item of dc) {
+    const qty = Number(item?.quantity) || 0;
+    if (qty > base) {
+      return `Each DC qty cannot exceed job quantity (${base})`;
+    }
+  }
+
+  const delivered = calcDcDeliveredQty(dc);
+  if (delivered > base) {
+    return `Total DC delivered qty (${delivered}) cannot exceed job quantity (${base})`;
+  }
+
+  return null;
+}
+
 export function normalizeDcItems(dc, jobFields = {}) {
   if (!Array.isArray(dc)) return [];
   return dc
