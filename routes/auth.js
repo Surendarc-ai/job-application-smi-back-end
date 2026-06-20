@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import User from '../models/User.js';
 import Role from '../models/Role.js';
+import Company from '../models/Company.js';
 import { ROLE } from '../constants/roles.js';
 import { userPayload, resolveRoleName } from '../utils/userPayload.js';
 
@@ -95,9 +96,12 @@ router.post('/login', async (req, res) => {
 
 router.post('/register', async (req, res) => {
   try {
-    const { username, password } = req.body;
+    const { username, password, companyName } = req.body;
     if (!username || !password) {
       return res.status(400).json({ error: 'Username and password required' });
+    }
+    if (!companyName?.trim()) {
+      return res.status(400).json({ error: 'Company name is required' });
     }
     if (await User.findOne({ username })) {
       return res.status(400).json({ error: 'Username already taken' });
@@ -110,10 +114,17 @@ router.post('/register', async (req, res) => {
       return res.status(500).json({ error: 'Roles not initialized' });
     }
 
+    const name = companyName.trim();
+    let company = await Company.findOne({ name });
+    if (!company) {
+      company = await Company.create({ name });
+    }
+
     const user = await User.create({
       username,
       password,
       role_id: role._id,
+      company_id: company._id,
     });
     await user.populate(userPopulate);
 

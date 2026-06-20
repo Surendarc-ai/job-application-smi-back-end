@@ -1,7 +1,6 @@
 import { Router } from 'express';
 import Customer from '../models/Customer.js';
 import { authMiddleware } from '../middleware/auth.js';
-import { parseCustomerPrompt } from '../utils/parseCustomerPrompt.js';
 import { getScopeFilter, getCompanyIdForSave } from '../utils/companyScope.js';
 
 const router = Router();
@@ -20,38 +19,18 @@ router.get('/', async (req, res) => {
   }
 });
 
-router.post('/ai-create', async (req, res) => {
-  try {
-    const { prompt } = req.body;
-    if (!prompt || !String(prompt).trim()) {
-      return res.status(400).json({ error: 'Please describe the customer you want to create' });
-    }
-
-    const parsed = parseCustomerPrompt(String(prompt));
-    if (!parsed.firstName) {
-      return res.status(400).json({
-        error: 'Could not detect a customer name. Try: "John Doe" or "Create customer Raj Kumar from Chennai"',
-      });
-    }
-
-    const customer = await Customer.create({
-      ...parsed,
-      userId: req.userId,
-      company_id: getCompanyIdForSave(req),
-    });
-
-    res.status(201).json({ customer, parsed });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
 router.post('/', async (req, res) => {
   try {
     const { firstName, lastName, email, phone, address, gstNumber } = req.body;
     if (!firstName) {
       return res.status(400).json({ error: 'First name is required' });
     }
+
+    const companyId = getCompanyIdForSave(req);
+    if (!companyId) {
+      return res.status(400).json({ error: 'Your account has no company. Please contact admin.' });
+    }
+
     const customer = await Customer.create({
       firstName,
       lastName: lastName || '',
@@ -60,7 +39,7 @@ router.post('/', async (req, res) => {
       address: address || '',
       gstNumber: gstNumber || '',
       userId: req.userId,
-      company_id: getCompanyIdForSave(req),
+      company_id: companyId,
     });
     res.status(201).json(customer);
   } catch (err) {
@@ -81,7 +60,7 @@ router.put('/:id', async (req, res) => {
         ...(address != null && { address }),
         ...(gstNumber != null && { gstNumber }),
       },
-      { new: true }
+      { new: true },
     );
     if (!customer) return res.status(404).json({ error: 'Customer not found' });
     res.json(customer);
