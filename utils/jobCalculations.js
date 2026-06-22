@@ -7,24 +7,26 @@ export function calcJobTotals({ quantity, lengthMm, widthMm, pricePerSqft }) {
   const l = Number(lengthMm) || 0;
   const w = Number(widthMm) || 0;
   const price = Number(pricePerSqft) || 0;
-  // Tot Size (sq ft) = length(mm) × width(mm) converted to square feet
   const totSizeSqFt = l * w * MM2_TO_SQFT;
-  const totSqft = totSizeSqFt * q;
+  const roundedTotSizeSqFt = Math.round(totSizeSqFt);
+  const totSqft = roundedTotSizeSqFt * q;
   const totalAmount = totSqft * price;
   return {
     totSizeSqFt: Math.round(totSizeSqFt * 10000) / 10000,
+    roundedTotSizeSqFt,
     totSqft: Math.round(totSqft * 10000) / 10000,
     totalAmount: Math.round(totalAmount * 100) / 100,
   };
 }
 
-export function calcDcLineAmount({ lengthMm, widthMm, pricePerSqft }, dcQty) {
+export function calcDcLineAmount({ lengthMm, widthMm, pricePerSqft, totSizeSqFt, roundedTotSizeSqFt }, dcQty) {
   const l = Number(lengthMm) || 0;
   const w = Number(widthMm) || 0;
   const price = Number(pricePerSqft) || 0;
   const q = Number(dcQty) || 0;
-  const totSizeSqFt = l * w * MM2_TO_SQFT;
-  return Math.round(totSizeSqFt * q * price * 100) / 100;
+  const rawSize = totSizeSqFt ?? l * w * MM2_TO_SQFT;
+  const roundedSize = roundedTotSizeSqFt ?? Math.round(rawSize);
+  return Math.round(roundedSize * q * price * 100) / 100;
 }
 
 export function calcDcDeliveredQty(dc) {
@@ -62,10 +64,11 @@ export function normalizeDcItems(dc, jobFields = {}) {
     .map((item) => {
       if (typeof item === 'string') {
         const billNo = item.trim();
-        return billNo ? { billNo, quantity: 0, amount: 0 } : null;
+        return billNo ? { date: null, billNo, quantity: 0, amount: 0 } : null;
       }
       const quantity = Number(item.quantity) || 0;
       return {
+        date: item.date ? new Date(item.date) : null,
         billNo: String(item.billNo || '').trim(),
         quantity,
         amount: calcDcLineAmount(jobFields, quantity),

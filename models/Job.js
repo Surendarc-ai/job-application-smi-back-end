@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 
 const dcItemSchema = new mongoose.Schema({
+  date: { type: Date, default: null },
   billNo: { type: String, default: '' },
   quantity: { type: Number, default: 0 },
   amount: { type: Number, default: 0 },
@@ -21,6 +22,7 @@ const jobSchema = new mongoose.Schema({
   widthMm: { type: Number, default: 0 },
   pricePerSqft: { type: Number, default: 0 },
   totSizeSqFt: { type: Number, default: 0 },
+  roundedTotSizeSqFt: { type: Number, default: 0 },
   totSqft: { type: Number, default: 0 },
   totalAmount: { type: Number, default: 0 },
   remainingDeliverQty: { type: Number, default: 0 },

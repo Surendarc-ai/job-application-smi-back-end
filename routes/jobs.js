@@ -4,6 +4,7 @@ import Customer from '../models/Customer.js';
 import { authMiddleware } from '../middleware/auth.js';
 import { getScopeFilter, getCompanyIdForSave } from '../utils/companyScope.js';
 import { buildJobPayload, getDcQuantityError } from '../utils/jobCalculations.js';
+import { buildJobsFilter, parseJobsListQuery } from '../utils/jobsQuery.js';
 
 const router = Router();
 router.use(authMiddleware);
@@ -18,24 +19,29 @@ async function validateCustomer(req, customerId) {
   return !!customer;
 }
 
-router.get('/models', async (req, res) => {
-  try {
-    const models = await Job.distinct('model', {
-      ...getScopeFilter(req),
-      model: { $nin: [null, ''] },
-    });
-    res.json(models.sort((a, b) => a.localeCompare(b)));
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
 router.get('/', async (req, res) => {
   try {
-    const jobs = await Job.find(getScopeFilter(req))
+    const filter = await buildJobsFilter(req);
+    const { isExport, page, limit, skip } = parseJobsListQuery(req);
+    const query = Job.find(filter)
       .populate('customer', 'firstName lastName')
       .sort({ date: -1 });
-    res.json(jobs);
+
+    const total = await Job.countDocuments(filter);
+
+    if (isExport) {
+      const items = await query.limit(10000);
+      return res.json({ items, total, page: 1, limit: total, hasMore: false });
+    }
+
+    const items = await query.skip(skip).limit(limit);
+    res.json({
+      items,
+      total,
+      page,
+      limit,
+      hasMore: skip + items.length < total,
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -97,6 +103,7 @@ router.put('/:id', async (req, res) => {
       isDC: existing.isDC,
       dc: Array.isArray(existing.dc)
         ? existing.dc.map((item) => ({
+          date: item.date || null,
           billNo: item.billNo || '',
           quantity: item.quantity || 0,
           amount: item.amount || 0,
