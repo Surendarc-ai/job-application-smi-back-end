@@ -2,13 +2,23 @@
 // 1 sq ft = 304.8 × 304.8 mm² = 92903.04 mm²
 const MM2_TO_SQFT = 1 / 92903.04;
 
+export function roundTotSizeSqFt(value) {
+  const num = Number(value) || 0;
+  const base = Math.round(num * 10000) / 10000;
+  const decimalPart = Math.round((base % 1) * 100);
+  if (decimalPart >= 90) {
+    return Math.ceil(base - 1e-9);
+  }
+  return Math.round(base * 100) / 100;
+}
+
 export function calcJobTotals({ quantity, lengthMm, widthMm, pricePerSqft }) {
   const q = Number(quantity) || 0;
   const l = Number(lengthMm) || 0;
   const w = Number(widthMm) || 0;
   const price = Number(pricePerSqft) || 0;
   const totSizeSqFt = l * w * MM2_TO_SQFT;
-  const roundedTotSizeSqFt = Math.round(totSizeSqFt);
+  const roundedTotSizeSqFt = roundTotSizeSqFt(totSizeSqFt);
   const totSqft = roundedTotSizeSqFt * q;
   const totalAmount = totSqft * price;
   return {
@@ -25,7 +35,7 @@ export function calcDcLineAmount({ lengthMm, widthMm, pricePerSqft, totSizeSqFt,
   const price = Number(pricePerSqft) || 0;
   const q = Number(dcQty) || 0;
   const rawSize = totSizeSqFt ?? l * w * MM2_TO_SQFT;
-  const roundedSize = roundedTotSizeSqFt ?? Math.round(rawSize);
+  const roundedSize = roundedTotSizeSqFt ?? roundTotSizeSqFt(rawSize);
   return Math.round(roundedSize * q * price * 100) / 100;
 }
 

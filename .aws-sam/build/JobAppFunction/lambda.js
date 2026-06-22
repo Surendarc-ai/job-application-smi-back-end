@@ -19811,17 +19811,17 @@ var require_router = __commonJS({
     var toString = Object.prototype.toString;
     var proto = module2.exports = function(options) {
       var opts = options || {};
-      function router4(req, res, next) {
-        router4.handle(req, res, next);
+      function router5(req, res, next) {
+        router5.handle(req, res, next);
       }
-      setPrototypeOf(router4, proto);
-      router4.params = {};
-      router4._params = [];
-      router4.caseSensitive = opts.caseSensitive;
-      router4.mergeParams = opts.mergeParams;
-      router4.strict = opts.strict;
-      router4.stack = [];
-      return router4;
+      setPrototypeOf(router5, proto);
+      router5.params = {};
+      router5._params = [];
+      router5.caseSensitive = opts.caseSensitive;
+      router5.mergeParams = opts.mergeParams;
+      router5.strict = opts.strict;
+      router5.stack = [];
+      return router5;
     };
     proto.param = function param(name, fn) {
       if (typeof name === "function") {
@@ -22413,7 +22413,7 @@ var require_application = __commonJS({
   "node_modules/express/lib/application.js"(exports2, module2) {
     "use strict";
     var finalhandler = require_finalhandler();
-    var Router4 = require_router();
+    var Router5 = require_router();
     var methods = require_methods();
     var middleware = require_init();
     var query = require_query();
@@ -22478,7 +22478,7 @@ var require_application = __commonJS({
     };
     app2.lazyrouter = function lazyrouter() {
       if (!this._router) {
-        this._router = new Router4({
+        this._router = new Router5({
           caseSensitive: this.enabled("case sensitive routing"),
           strict: this.enabled("strict routing")
         });
@@ -22487,17 +22487,17 @@ var require_application = __commonJS({
       }
     };
     app2.handle = function handle(req, res, callback) {
-      var router4 = this._router;
+      var router5 = this._router;
       var done = callback || finalhandler(req, res, {
         env: this.get("env"),
         onerror: logerror.bind(this)
       });
-      if (!router4) {
+      if (!router5) {
         debug("no routes defined on app");
         done();
         return;
       }
-      router4.handle(req, res, done);
+      router5.handle(req, res, done);
     };
     app2.use = function use(fn) {
       var offset = 0;
@@ -22517,15 +22517,15 @@ var require_application = __commonJS({
         throw new TypeError("app.use() requires a middleware function");
       }
       this.lazyrouter();
-      var router4 = this._router;
+      var router5 = this._router;
       fns.forEach(function(fn2) {
         if (!fn2 || !fn2.handle || !fn2.set) {
-          return router4.use(path, fn2);
+          return router5.use(path, fn2);
         }
         debug(".use app under %s", path);
         fn2.mountpath = path;
         fn2.parent = this;
-        router4.use(path, function mounted_app(req, res, next) {
+        router5.use(path, function mounted_app(req, res, next) {
           var orig = req.app;
           fn2.handle(req, res, function(err) {
             setPrototypeOf(req, orig.request);
@@ -24342,7 +24342,7 @@ var require_express2 = __commonJS({
     var mixin = require_merge_descriptors();
     var proto = require_application();
     var Route = require_route();
-    var Router4 = require_router();
+    var Router5 = require_router();
     var req = require_request2();
     var res = require_response2();
     exports2 = module2.exports = createApplication;
@@ -24365,7 +24365,7 @@ var require_express2 = __commonJS({
     exports2.request = req;
     exports2.response = res;
     exports2.Route = Route;
-    exports2.Router = Router4;
+    exports2.Router = Router5;
     exports2.json = bodyParser.json;
     exports2.query = require_query();
     exports2.raw = bodyParser.raw;
@@ -82517,10 +82517,10 @@ var require_connection2 = __commonJS({
         });
       });
     };
-    async function _wrapUserTransaction(fn, session, mongoose7) {
+    async function _wrapUserTransaction(fn, session, mongoose8) {
       try {
-        const res = mongoose7.transactionAsyncLocalStorage == null ? await fn(session) : await new Promise((resolve) => {
-          mongoose7.transactionAsyncLocalStorage.run(
+        const res = mongoose8.transactionAsyncLocalStorage == null ? await fn(session) : await new Promise((resolve) => {
+          mongoose8.transactionAsyncLocalStorage.run(
             { session },
             () => resolve(fn(session))
           );
@@ -95645,7 +95645,7 @@ var require_mongoose = __commonJS({
     Mongoose.prototype.ConnectionStates = STATES;
     Mongoose.prototype.driver = driver;
     Mongoose.prototype.setDriver = function setDriver(driver2) {
-      const _mongoose = this instanceof Mongoose ? this : mongoose7;
+      const _mongoose = this instanceof Mongoose ? this : mongoose8;
       if (_mongoose.__driver === driver2) {
         return _mongoose;
       }
@@ -95663,7 +95663,7 @@ var require_mongoose = __commonJS({
         }
       }
       if (driver2.SchemaTypes != null) {
-        Object.assign(mongoose7.Schema.Types, driver2.SchemaTypes);
+        Object.assign(mongoose8.Schema.Types, driver2.SchemaTypes);
       }
       const Connection = driver2.Connection;
       const oldDefaultConnection = _mongoose.connections[0];
@@ -95681,7 +95681,7 @@ var require_mongoose = __commonJS({
       return _mongoose;
     };
     Mongoose.prototype.set = function getsetOptions(key, value) {
-      const _mongoose = this instanceof Mongoose ? this : mongoose7;
+      const _mongoose = this instanceof Mongoose ? this : mongoose8;
       if (arguments.length === 1 && typeof key !== "object") {
         if (VALID_OPTIONS.indexOf(key) === -1) {
           const error2 = new SetOptionError();
@@ -95742,7 +95742,7 @@ var require_mongoose = __commonJS({
     };
     Mongoose.prototype.get = Mongoose.prototype.set;
     Mongoose.prototype.createConnection = function createConnection(uri, options) {
-      const _mongoose = this instanceof Mongoose ? this : mongoose7;
+      const _mongoose = this instanceof Mongoose ? this : mongoose8;
       const Connection = _mongoose.__driver.Connection;
       const conn = new Connection(_mongoose);
       _mongoose.connections.push(conn);
@@ -95757,7 +95757,7 @@ var require_mongoose = __commonJS({
       if (typeof options === "function" || arguments.length >= 3 && typeof arguments[2] === "function") {
         throw new MongooseError("Mongoose.prototype.connect() no longer accepts a callback");
       }
-      const _mongoose = this instanceof Mongoose ? this : mongoose7;
+      const _mongoose = this instanceof Mongoose ? this : mongoose8;
       if (_mongoose.connection == null) {
         _createDefaultConnection(_mongoose);
       }
@@ -95768,7 +95768,7 @@ var require_mongoose = __commonJS({
       if (arguments.length >= 1 && typeof arguments[0] === "function") {
         throw new MongooseError("Mongoose.prototype.disconnect() no longer accepts a callback");
       }
-      const _mongoose = this instanceof Mongoose ? this : mongoose7;
+      const _mongoose = this instanceof Mongoose ? this : mongoose8;
       const remaining = _mongoose.connections.length;
       if (remaining <= 0) {
         return;
@@ -95776,18 +95776,18 @@ var require_mongoose = __commonJS({
       await Promise.all(_mongoose.connections.map((conn) => conn.close()));
     };
     Mongoose.prototype.startSession = function startSession() {
-      const _mongoose = this instanceof Mongoose ? this : mongoose7;
+      const _mongoose = this instanceof Mongoose ? this : mongoose8;
       return _mongoose.connection.startSession.apply(_mongoose.connection, arguments);
     };
     Mongoose.prototype.pluralize = function pluralize(fn) {
-      const _mongoose = this instanceof Mongoose ? this : mongoose7;
+      const _mongoose = this instanceof Mongoose ? this : mongoose8;
       if (arguments.length > 0) {
         _mongoose._pluralize = fn;
       }
       return _mongoose._pluralize;
     };
     Mongoose.prototype.model = function model(name, schema, collection, options) {
-      const _mongoose = this instanceof Mongoose ? this : mongoose7;
+      const _mongoose = this instanceof Mongoose ? this : mongoose8;
       if (typeof schema === "string") {
         collection = schema;
         schema = false;
@@ -95835,7 +95835,7 @@ var require_mongoose = __commonJS({
       return model2;
     };
     Mongoose.prototype._model = function _model(name, schema, collection, options) {
-      const _mongoose = this instanceof Mongoose ? this : mongoose7;
+      const _mongoose = this instanceof Mongoose ? this : mongoose8;
       let model;
       if (typeof name === "function") {
         model = name;
@@ -95874,25 +95874,25 @@ var require_mongoose = __commonJS({
       return model;
     };
     Mongoose.prototype.deleteModel = function deleteModel(name) {
-      const _mongoose = this instanceof Mongoose ? this : mongoose7;
+      const _mongoose = this instanceof Mongoose ? this : mongoose8;
       _mongoose.connection.deleteModel(name);
       delete _mongoose.models[name];
       return _mongoose;
     };
     Mongoose.prototype.modelNames = function modelNames() {
-      const _mongoose = this instanceof Mongoose ? this : mongoose7;
+      const _mongoose = this instanceof Mongoose ? this : mongoose8;
       const names = Object.keys(_mongoose.models);
       return names;
     };
     Mongoose.prototype._applyPlugins = function _applyPlugins(schema, options) {
-      const _mongoose = this instanceof Mongoose ? this : mongoose7;
+      const _mongoose = this instanceof Mongoose ? this : mongoose8;
       options = options || {};
       options.applyPluginsToDiscriminators = _mongoose.options && _mongoose.options.applyPluginsToDiscriminators || false;
       options.applyPluginsToChildSchemas = typeof (_mongoose.options && _mongoose.options.applyPluginsToChildSchemas) === "boolean" ? _mongoose.options.applyPluginsToChildSchemas : true;
       applyPlugins(schema, _mongoose.plugins, options, "$globalPluginsApplied");
     };
     Mongoose.prototype.plugin = function plugin(fn, opts) {
-      const _mongoose = this instanceof Mongoose ? this : mongoose7;
+      const _mongoose = this instanceof Mongoose ? this : mongoose8;
       _mongoose.plugins.push([fn, opts]);
       return _mongoose;
     };
@@ -95942,14 +95942,14 @@ var require_mongoose = __commonJS({
     Mongoose.prototype.DocumentProvider = require_documentProvider();
     Mongoose.prototype.ObjectId = SchemaTypes.ObjectId;
     Mongoose.prototype.isValidObjectId = function isValidObjectId(v) {
-      const _mongoose = this instanceof Mongoose ? this : mongoose7;
+      const _mongoose = this instanceof Mongoose ? this : mongoose8;
       return _mongoose.Types.ObjectId.isValid(v);
     };
     Mongoose.prototype.isObjectIdOrHexString = function isObjectIdOrHexString(v) {
       return isBsonType(v, "ObjectId") || typeof v === "string" && objectIdHexRegexp.test(v);
     };
     Mongoose.prototype.syncIndexes = function syncIndexes(options) {
-      const _mongoose = this instanceof Mongoose ? this : mongoose7;
+      const _mongoose = this instanceof Mongoose ? this : mongoose8;
       return _mongoose.connection.syncIndexes(options);
     };
     Mongoose.prototype.Decimal128 = SchemaTypes.Decimal128;
@@ -95969,15 +95969,15 @@ var require_mongoose = __commonJS({
     Mongoose.prototype.skipMiddlewareFunction = Kareem.skipWrappedFunction;
     Mongoose.prototype.overwriteMiddlewareResult = Kareem.overwriteResult;
     Mongoose.prototype.omitUndefined = require_omitUndefined();
-    function _createDefaultConnection(mongoose8) {
-      if (mongoose8.connection) {
+    function _createDefaultConnection(mongoose9) {
+      if (mongoose9.connection) {
         return;
       }
-      const conn = mongoose8.createConnection();
+      const conn = mongoose9.createConnection();
       conn[defaultConnectionSymbol] = true;
-      conn.models = mongoose8.models;
+      conn.models = mongoose9.models;
     }
-    var mongoose7 = module2.exports = exports2 = new Mongoose({
+    var mongoose8 = module2.exports = exports2 = new Mongoose({
       [defaultMongooseSymbol]: true
     });
   }
@@ -95989,10 +95989,10 @@ var require_lib9 = __commonJS({
     "use strict";
     var mongodbDriver = require_node_mongodb_native();
     require_driver().set(mongodbDriver);
-    var mongoose7 = require_mongoose();
-    mongoose7.setDriver(mongodbDriver);
-    mongoose7.Mongoose.prototype.mongo = require_lib6();
-    module2.exports = mongoose7;
+    var mongoose8 = require_mongoose();
+    mongoose8.setDriver(mongodbDriver);
+    mongoose8.Mongoose.prototype.mongo = require_lib6();
+    module2.exports = mongoose8;
   }
 });
 
@@ -96000,55 +96000,55 @@ var require_lib9 = __commonJS({
 var require_mongoose2 = __commonJS({
   "node_modules/mongoose/index.js"(exports2, module2) {
     "use strict";
-    var mongoose7 = require_lib9();
-    module2.exports = mongoose7;
-    module2.exports.default = mongoose7;
-    module2.exports.mongoose = mongoose7;
-    module2.exports.cast = mongoose7.cast;
-    module2.exports.STATES = mongoose7.STATES;
-    module2.exports.setDriver = mongoose7.setDriver;
-    module2.exports.set = mongoose7.set;
-    module2.exports.get = mongoose7.get;
-    module2.exports.createConnection = mongoose7.createConnection;
-    module2.exports.connect = mongoose7.connect;
-    module2.exports.disconnect = mongoose7.disconnect;
-    module2.exports.startSession = mongoose7.startSession;
-    module2.exports.pluralize = mongoose7.pluralize;
-    module2.exports.model = mongoose7.model;
-    module2.exports.deleteModel = mongoose7.deleteModel;
-    module2.exports.modelNames = mongoose7.modelNames;
-    module2.exports.plugin = mongoose7.plugin;
-    module2.exports.connections = mongoose7.connections;
-    module2.exports.version = mongoose7.version;
-    module2.exports.Aggregate = mongoose7.Aggregate;
-    module2.exports.Mongoose = mongoose7.Mongoose;
-    module2.exports.Schema = mongoose7.Schema;
-    module2.exports.SchemaType = mongoose7.SchemaType;
-    module2.exports.SchemaTypes = mongoose7.SchemaTypes;
-    module2.exports.VirtualType = mongoose7.VirtualType;
-    module2.exports.Types = mongoose7.Types;
-    module2.exports.Query = mongoose7.Query;
-    module2.exports.Model = mongoose7.Model;
-    module2.exports.Document = mongoose7.Document;
-    module2.exports.ObjectId = mongoose7.ObjectId;
-    module2.exports.isValidObjectId = mongoose7.isValidObjectId;
-    module2.exports.isObjectIdOrHexString = mongoose7.isObjectIdOrHexString;
-    module2.exports.syncIndexes = mongoose7.syncIndexes;
-    module2.exports.Decimal128 = mongoose7.Decimal128;
-    module2.exports.Mixed = mongoose7.Mixed;
-    module2.exports.Date = mongoose7.Date;
-    module2.exports.Number = mongoose7.Number;
-    module2.exports.Error = mongoose7.Error;
-    module2.exports.MongooseError = mongoose7.MongooseError;
-    module2.exports.now = mongoose7.now;
-    module2.exports.CastError = mongoose7.CastError;
-    module2.exports.SchemaTypeOptions = mongoose7.SchemaTypeOptions;
-    module2.exports.mongo = mongoose7.mongo;
-    module2.exports.mquery = mongoose7.mquery;
-    module2.exports.sanitizeFilter = mongoose7.sanitizeFilter;
-    module2.exports.trusted = mongoose7.trusted;
-    module2.exports.skipMiddlewareFunction = mongoose7.skipMiddlewareFunction;
-    module2.exports.overwriteMiddlewareResult = mongoose7.overwriteMiddlewareResult;
+    var mongoose8 = require_lib9();
+    module2.exports = mongoose8;
+    module2.exports.default = mongoose8;
+    module2.exports.mongoose = mongoose8;
+    module2.exports.cast = mongoose8.cast;
+    module2.exports.STATES = mongoose8.STATES;
+    module2.exports.setDriver = mongoose8.setDriver;
+    module2.exports.set = mongoose8.set;
+    module2.exports.get = mongoose8.get;
+    module2.exports.createConnection = mongoose8.createConnection;
+    module2.exports.connect = mongoose8.connect;
+    module2.exports.disconnect = mongoose8.disconnect;
+    module2.exports.startSession = mongoose8.startSession;
+    module2.exports.pluralize = mongoose8.pluralize;
+    module2.exports.model = mongoose8.model;
+    module2.exports.deleteModel = mongoose8.deleteModel;
+    module2.exports.modelNames = mongoose8.modelNames;
+    module2.exports.plugin = mongoose8.plugin;
+    module2.exports.connections = mongoose8.connections;
+    module2.exports.version = mongoose8.version;
+    module2.exports.Aggregate = mongoose8.Aggregate;
+    module2.exports.Mongoose = mongoose8.Mongoose;
+    module2.exports.Schema = mongoose8.Schema;
+    module2.exports.SchemaType = mongoose8.SchemaType;
+    module2.exports.SchemaTypes = mongoose8.SchemaTypes;
+    module2.exports.VirtualType = mongoose8.VirtualType;
+    module2.exports.Types = mongoose8.Types;
+    module2.exports.Query = mongoose8.Query;
+    module2.exports.Model = mongoose8.Model;
+    module2.exports.Document = mongoose8.Document;
+    module2.exports.ObjectId = mongoose8.ObjectId;
+    module2.exports.isValidObjectId = mongoose8.isValidObjectId;
+    module2.exports.isObjectIdOrHexString = mongoose8.isObjectIdOrHexString;
+    module2.exports.syncIndexes = mongoose8.syncIndexes;
+    module2.exports.Decimal128 = mongoose8.Decimal128;
+    module2.exports.Mixed = mongoose8.Mixed;
+    module2.exports.Date = mongoose8.Date;
+    module2.exports.Number = mongoose8.Number;
+    module2.exports.Error = mongoose8.Error;
+    module2.exports.MongooseError = mongoose8.MongooseError;
+    module2.exports.now = mongoose8.now;
+    module2.exports.CastError = mongoose8.CastError;
+    module2.exports.SchemaTypeOptions = mongoose8.SchemaTypeOptions;
+    module2.exports.mongo = mongoose8.mongo;
+    module2.exports.mquery = mongoose8.mquery;
+    module2.exports.sanitizeFilter = mongoose8.sanitizeFilter;
+    module2.exports.trusted = mongoose8.trusted;
+    module2.exports.skipMiddlewareFunction = mongoose8.skipMiddlewareFunction;
+    module2.exports.overwriteMiddlewareResult = mongoose8.overwriteMiddlewareResult;
   }
 });
 
@@ -96062,7 +96062,7 @@ var import_serverless_express = __toESM(require_src2(), 1);
 
 // app.js
 var import_dotenv2 = __toESM(require_main(), 1);
-var import_express4 = __toESM(require_express3(), 1);
+var import_express5 = __toESM(require_express3(), 1);
 var import_cors = __toESM(require_lib3(), 1);
 
 // routes/auth.js
@@ -96251,6 +96251,7 @@ var import_express2 = __toESM(require_express3(), 1);
 // models/Job.js
 var import_mongoose4 = __toESM(require_mongoose2(), 1);
 var dcItemSchema = new import_mongoose4.default.Schema({
+  date: { type: Date, default: null },
   billNo: { type: String, default: "" },
   quantity: { type: Number, default: 0 },
   amount: { type: Number, default: 0 }
@@ -96270,6 +96271,7 @@ var jobSchema = new import_mongoose4.default.Schema({
   widthMm: { type: Number, default: 0 },
   pricePerSqft: { type: Number, default: 0 },
   totSizeSqFt: { type: Number, default: 0 },
+  roundedTotSizeSqFt: { type: Number, default: 0 },
   totSqft: { type: Number, default: 0 },
   totalAmount: { type: Number, default: 0 },
   remainingDeliverQty: { type: Number, default: 0 },
@@ -96340,21 +96342,24 @@ function calcJobTotals({ quantity, lengthMm, widthMm, pricePerSqft }) {
   const w = Number(widthMm) || 0;
   const price = Number(pricePerSqft) || 0;
   const totSizeSqFt = l * w * MM2_TO_SQFT;
-  const totSqft = totSizeSqFt * q;
+  const roundedTotSizeSqFt = Math.round(totSizeSqFt);
+  const totSqft = roundedTotSizeSqFt * q;
   const totalAmount = totSqft * price;
   return {
     totSizeSqFt: Math.round(totSizeSqFt * 1e4) / 1e4,
+    roundedTotSizeSqFt,
     totSqft: Math.round(totSqft * 1e4) / 1e4,
     totalAmount: Math.round(totalAmount * 100) / 100
   };
 }
-function calcDcLineAmount({ lengthMm, widthMm, pricePerSqft }, dcQty) {
+function calcDcLineAmount({ lengthMm, widthMm, pricePerSqft, totSizeSqFt, roundedTotSizeSqFt }, dcQty) {
   const l = Number(lengthMm) || 0;
   const w = Number(widthMm) || 0;
   const price = Number(pricePerSqft) || 0;
   const q = Number(dcQty) || 0;
-  const totSizeSqFt = l * w * MM2_TO_SQFT;
-  return Math.round(totSizeSqFt * q * price * 100) / 100;
+  const rawSize = totSizeSqFt ?? l * w * MM2_TO_SQFT;
+  const roundedSize = roundedTotSizeSqFt ?? Math.round(rawSize);
+  return Math.round(roundedSize * q * price * 100) / 100;
 }
 function calcDcDeliveredQty(dc) {
   if (!Array.isArray(dc)) return 0;
@@ -96384,10 +96389,11 @@ function normalizeDcItems(dc, jobFields = {}) {
   return dc.map((item) => {
     if (typeof item === "string") {
       const billNo = item.trim();
-      return billNo ? { billNo, quantity: 0, amount: 0 } : null;
+      return billNo ? { date: null, billNo, quantity: 0, amount: 0 } : null;
     }
     const quantity = Number(item.quantity) || 0;
     return {
+      date: item.date ? new Date(item.date) : null,
       billNo: String(item.billNo || "").trim(),
       quantity,
       amount: calcDcLineAmount(jobFields, quantity)
@@ -96417,6 +96423,60 @@ function buildJobPayload(body) {
   };
 }
 
+// utils/jobsQuery.js
+function escapeRegex(value) {
+  return String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+function parseDayStart(dateStr) {
+  const [y, m, d] = dateStr.split("-").map(Number);
+  return new Date(y, m - 1, d, 0, 0, 0, 0);
+}
+function parseDayEnd(dateStr) {
+  const [y, m, d] = dateStr.split("-").map(Number);
+  return new Date(y, m - 1, d, 23, 59, 59, 999);
+}
+async function buildJobsFilter(req) {
+  const scope = getScopeFilter(req);
+  const filter = { ...scope };
+  const { search, from, to, isDC } = req.query;
+  if (from || to) {
+    filter.date = {};
+    if (from) filter.date.$gte = parseDayStart(from);
+    if (to) filter.date.$lte = parseDayEnd(to);
+  }
+  if (isDC === "yes" || isDC === "true") filter.isDC = true;
+  else if (isDC === "no" || isDC === "false") filter.isDC = false;
+  const term = search?.trim();
+  if (term) {
+    const regex = new RegExp(escapeRegex(term), "i");
+    const customerIds = await Customer_default.find({
+      ...scope,
+      $or: [
+        { firstName: regex },
+        { lastName: regex },
+        { email: regex },
+        { phone: regex }
+      ]
+    }).distinct("_id");
+    filter.$or = [
+      { projectName: regex },
+      { model: regex },
+      { billNo: regex },
+      { jobNumber: regex },
+      { pixel: regex },
+      { "dc.billNo": regex },
+      ...customerIds.length ? [{ customer: { $in: customerIds } }] : []
+    ];
+  }
+  return filter;
+}
+function parseJobsListQuery(req) {
+  const isExport = req.query.export === "1" || req.query.export === "true";
+  const page = Math.max(1, Number(req.query.page) || 1);
+  const limit = Math.min(100, Math.max(1, Number(req.query.limit) || 30));
+  return { isExport, page, limit, skip: (page - 1) * limit };
+}
+
 // routes/jobs.js
 var router2 = (0, import_express2.Router)();
 router2.use(authMiddleware);
@@ -96428,21 +96488,24 @@ async function validateCustomer(req, customerId) {
   const customer = await Customer_default.findOne({ _id: customerId, ...getScopeFilter(req) });
   return !!customer;
 }
-router2.get("/models", async (req, res) => {
-  try {
-    const models = await Job_default.distinct("model", {
-      ...getScopeFilter(req),
-      model: { $nin: [null, ""] }
-    });
-    res.json(models.sort((a, b) => a.localeCompare(b)));
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
 router2.get("/", async (req, res) => {
   try {
-    const jobs = await Job_default.find(getScopeFilter(req)).populate("customer", "firstName lastName").sort({ date: -1 });
-    res.json(jobs);
+    const filter = await buildJobsFilter(req);
+    const { isExport, page, limit, skip } = parseJobsListQuery(req);
+    const query = Job_default.find(filter).populate("customer", "firstName lastName").sort({ date: -1 });
+    const total = await Job_default.countDocuments(filter);
+    if (isExport) {
+      const items2 = await query.limit(1e4);
+      return res.json({ items: items2, total, page: 1, limit: total, hasMore: false });
+    }
+    const items = await query.skip(skip).limit(limit);
+    res.json({
+      items,
+      total,
+      page,
+      limit,
+      hasMore: skip + items.length < total
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -96493,6 +96556,7 @@ router2.put("/:id", async (req, res) => {
       model: existing.model,
       isDC: existing.isDC,
       dc: Array.isArray(existing.dc) ? existing.dc.map((item) => ({
+        date: item.date || null,
         billNo: item.billNo || "",
         quantity: item.quantity || 0,
         amount: item.amount || 0
@@ -96607,15 +96671,112 @@ router3.delete("/:id", async (req, res) => {
 });
 var customers_default = router3;
 
+// routes/models.js
+var import_express4 = __toESM(require_express3(), 1);
+
+// models/ProductModel.js
+var import_mongoose6 = __toESM(require_mongoose2(), 1);
+var productModelSchema = new import_mongoose6.default.Schema({
+  name: { type: String, required: true, trim: true },
+  description: { type: String, default: "" },
+  userId: { type: import_mongoose6.default.Schema.Types.ObjectId, ref: "User", required: true },
+  company_id: { type: import_mongoose6.default.Schema.Types.ObjectId, ref: "Company", default: null }
+}, { timestamps: true });
+productModelSchema.index({ company_id: 1, name: 1 }, { unique: true });
+var ProductModel_default = import_mongoose6.default.model("ProductModel", productModelSchema, "product_models");
+
+// routes/models.js
+var router4 = (0, import_express4.Router)();
+router4.use(authMiddleware);
+function modelScope(req) {
+  return { _id: req.params.id, ...getScopeFilter(req) };
+}
+router4.get("/", async (req, res) => {
+  try {
+    const models = await ProductModel_default.find(getScopeFilter(req)).sort({ name: 1 });
+    res.json(models);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+router4.post("/", async (req, res) => {
+  try {
+    const { name, description } = req.body;
+    if (!name?.trim()) {
+      return res.status(400).json({ error: "Model name is required" });
+    }
+    const companyId = getCompanyIdForSave(req);
+    if (!companyId) {
+      return res.status(400).json({ error: "Your account has no company. Please contact admin." });
+    }
+    const existing = await ProductModel_default.findOne({
+      ...getScopeFilter(req),
+      name: name.trim()
+    });
+    if (existing) {
+      return res.status(400).json({ error: "Model name already exists" });
+    }
+    const model = await ProductModel_default.create({
+      name: name.trim(),
+      description: String(description || "").trim(),
+      userId: req.userId,
+      company_id: companyId
+    });
+    res.status(201).json(model);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+router4.put("/:id", async (req, res) => {
+  try {
+    const { name, description } = req.body;
+    if (name != null && !String(name).trim()) {
+      return res.status(400).json({ error: "Model name is required" });
+    }
+    if (name?.trim()) {
+      const duplicate = await ProductModel_default.findOne({
+        ...getScopeFilter(req),
+        name: name.trim(),
+        _id: { $ne: req.params.id }
+      });
+      if (duplicate) {
+        return res.status(400).json({ error: "Model name already exists" });
+      }
+    }
+    const model = await ProductModel_default.findOneAndUpdate(
+      modelScope(req),
+      {
+        ...name != null && { name: String(name).trim() },
+        ...description != null && { description: String(description).trim() }
+      },
+      { new: true }
+    );
+    if (!model) return res.status(404).json({ error: "Model not found" });
+    res.json(model);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+router4.delete("/:id", async (req, res) => {
+  try {
+    const model = await ProductModel_default.findOneAndDelete(modelScope(req));
+    if (!model) return res.status(404).json({ error: "Model not found" });
+    res.status(204).send();
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+var models_default = router4;
+
 // db.js
 var import_dotenv = __toESM(require_main(), 1);
-var import_mongoose6 = __toESM(require_mongoose2(), 1);
+var import_mongoose7 = __toESM(require_mongoose2(), 1);
 import_dotenv.default.config({ path: "env" });
 var connected = false;
 var connectPromise = null;
 async function connectDB() {
-  if (connected && import_mongoose6.default.connection.readyState === 1) {
-    return import_mongoose6.default.connection;
+  if (connected && import_mongoose7.default.connection.readyState === 1) {
+    return import_mongoose7.default.connection;
   }
   if (connectPromise) {
     return connectPromise;
@@ -96627,12 +96788,12 @@ async function connectDB() {
   if (uri.includes("<db_password>")) {
     throw new Error("Replace <db_password> in env with your MongoDB Atlas password.");
   }
-  connectPromise = import_mongoose6.default.connect(uri, {
+  connectPromise = import_mongoose7.default.connect(uri, {
     maxPoolSize: 10,
     serverSelectionTimeoutMS: Number(process.env.MONGODB_TIMEOUT_MS || 3e4)
   }).then((conn) => {
     connected = true;
-    console.log("MongoDB connected to", import_mongoose6.default.connection.name);
+    console.log("MongoDB connected to", import_mongoose7.default.connection.name);
     return conn;
   }).catch((err) => {
     connectPromise = null;
@@ -96654,7 +96815,7 @@ function isAllowedOrigin(origin) {
   }
   return false;
 }
-var app = (0, import_express4.default)();
+var app = (0, import_express5.default)();
 app.use((0, import_cors.default)({
   origin: (origin, cb) => {
     if (isAllowedOrigin(origin)) return cb(null, origin || true);
@@ -96667,8 +96828,8 @@ app.use((0, import_cors.default)({
   optionsSuccessStatus: 204,
   maxAge: 86400
 }));
-app.use(import_express4.default.json({ limit: "50mb" }));
-app.use(import_express4.default.urlencoded({ limit: "50mb", extended: true }));
+app.use(import_express5.default.json({ limit: "50mb" }));
+app.use(import_express5.default.urlencoded({ limit: "50mb", extended: true }));
 app.use((req, res, next) => {
   const origin = req.headers.origin;
   if (origin && isAllowedOrigin(origin)) {
@@ -96689,6 +96850,7 @@ app.use(async (_req, res, next) => {
 app.use("/api/auth", auth_default);
 app.use("/api/jobs", jobs_default);
 app.use("/api/customers", customers_default);
+app.use("/api/models", models_default);
 app.get("/api/health", (_, res) => res.json({ ok: true }));
 var app_default = app;
 
