@@ -15,6 +15,43 @@ Parameters:
     Type: String
     Description: Frontend URL (comma-separated for multiple origins)
     Default: https://your-frontend.vercel.app
+  BackupEmailTo:
+    Type: String
+    Default: ''
+    Description: Comma-separated emails to receive scheduled backups
+  BackupEmailFrom:
+    Type: String
+    Default: ''
+    Description: From address for backup emails
+  SmtpHost:
+    Type: String
+    Default: ''
+    Description: SMTP host for backup emails
+  SmtpPort:
+    Type: String
+    Default: '587'
+    Description: SMTP port
+  SmtpUser:
+    Type: String
+    Default: ''
+    NoEcho: true
+    Description: SMTP username
+  SmtpPass:
+    Type: String
+    Default: ''
+    NoEcho: true
+    Description: SMTP password
+  SmtpSecure:
+    Type: String
+    Default: 'false'
+    Description: Use SMTP secure mode (true/false)
+  BackupCronSchedule:
+    Type: String
+    Default: 'cron(30 19 * * ? *)'
+    Description: EventBridge schedule for daily backup (UTC). Default is about 1:00 AM IST.
+
+Conditions:
+  BackupCronEnabled: !Not [!Equals [!Ref BackupEmailTo, '']]
 
 Globals:
   Function:
@@ -40,6 +77,13 @@ Resources:
           JWT_SECRET: !Ref JwtSecret
           CLIENT_ORIGIN: !Ref ClientOrigin
           MONGODB_TIMEOUT_MS: '30000'
+          BACKUP_EMAIL_TO: !Ref BackupEmailTo
+          BACKUP_EMAIL_FROM: !Ref BackupEmailFrom
+          SMTP_HOST: !Ref SmtpHost
+          SMTP_PORT: !Ref SmtpPort
+          SMTP_USER: !Ref SmtpUser
+          SMTP_PASS: !Ref SmtpPass
+          SMTP_SECURE: !Ref SmtpSecure
       Events:
         Api:
           Type: HttpApi
@@ -61,6 +105,44 @@ Resources:
         Sourcemap: false
         EntryPoints:
           - lambda.js
+        External:
+          - '@aws-sdk/*'
+
+  BackupCronFunction:
+    Type: AWS::Serverless::Function
+    Condition: BackupCronEnabled
+    Properties:
+      Handler: backupCron.handler
+      CodeUri: .
+      Description: Scheduled MongoDB backup email
+      Timeout: 120
+      MemorySize: 1024
+      Environment:
+        Variables:
+          MONGODB_URI: !Ref MongoDbUri
+          MONGODB_TIMEOUT_MS: '30000'
+          BACKUP_EMAIL_TO: !Ref BackupEmailTo
+          BACKUP_EMAIL_FROM: !Ref BackupEmailFrom
+          SMTP_HOST: !Ref SmtpHost
+          SMTP_PORT: !Ref SmtpPort
+          SMTP_USER: !Ref SmtpUser
+          SMTP_PASS: !Ref SmtpPass
+          SMTP_SECURE: !Ref SmtpSecure
+      Events:
+        DailyBackup:
+          Type: Schedule
+          Properties:
+            Schedule: !Ref BackupCronSchedule
+            Description: Daily Excel backup email
+            Enabled: true
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: false
+        Target: es2022
+        Sourcemap: false
+        EntryPoints:
+          - backupCron.js
         External:
           - '@aws-sdk/*'
 

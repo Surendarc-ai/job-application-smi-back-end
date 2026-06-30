@@ -30,4 +30,12 @@ sam deploy \
   --parameter-overrides \
     "MongoDbUri=${MONGODB_URI}" \
     "JwtSecret=${JWT_SECRET}" \
-    "ClientOrigin=${CLIENT_ORIGINS}"
+    "ClientOrigin=${CLIENT_ORIGINS}" \
+    "BackupEmailTo=${BACKUP_EMAIL_TO:-}" \
+    "BackupEmailFrom=${BACKUP_EMAIL_FROM:-}" \
+    "SmtpHost=${SMTP_HOST:-}" \
+    "SmtpPort=${SMTP_PORT:-587}" \
+    "SmtpUser=${SMTP_USER:-}" \
+    "SmtpPass=${SMTP_PASS:-}" \
+    "SmtpSecure=${SMTP_SECURE:-false}" \
+    "BackupCronSchedule=${BACKUP_CRON_SCHEDULE:-cron(30 19 * * ? *)}"

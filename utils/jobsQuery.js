@@ -18,7 +18,7 @@ function parseDayEnd(dateStr) {
 export async function buildJobsFilter(req) {
   const scope = getScopeFilter(req);
   const filter = { ...scope };
-  const { search, from, to, isDC } = req.query;
+  const { search, from, to, isDC, customer } = req.query;
 
   if (from || to) {
     filter.date = {};
@@ -28,6 +28,12 @@ export async function buildJobsFilter(req) {
 
   if (isDC === 'yes' || isDC === 'true') filter.isDC = true;
   else if (isDC === 'no' || isDC === 'false') filter.isDC = false;
+
+  const customerId = customer?.trim();
+  if (customerId) {
+    const customerDoc = await Customer.findOne({ _id: customerId, ...scope }).select('_id');
+    filter.customer = customerDoc ? customerDoc._id : { $in: [] };
+  }
 
   const term = search?.trim();
   if (term) {

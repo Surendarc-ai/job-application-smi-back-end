@@ -5,6 +5,7 @@ import authRoutes from './routes/auth.js';
 import jobsRoutes from './routes/jobs.js';
 import customersRoutes from './routes/customers.js';
 import modelsRoutes from './routes/models.js';
+import backupRoutes from './routes/backup.js';
 import { connectDB } from './db.js';
 
 dotenv.config({ path: 'env' });
@@ -65,6 +66,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/jobs', jobsRoutes);
 app.use('/api/customers', customersRoutes);
 app.use('/api/models', modelsRoutes);
+app.use('/api/backup', backupRoutes);
 app.get('/api/health', (_, res) => res.json({ ok: true }));
 
 export default app;

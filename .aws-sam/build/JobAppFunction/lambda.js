@@ -96376,22 +96376,7 @@ function calcDcDeliveredQty(dc) {
 }
 function calcRemainingDeliverQty(jobQty, dc) {
   const total = Number(jobQty) || 0;
-  return Math.max(0, Math.round((total - calcDcDeliveredQty(dc)) * 1e4) / 1e4);
-}
-function getDcQuantityError(jobQty, dc) {
-  const base = Number(jobQty) || 0;
-  if (!Array.isArray(dc)) return null;
-  for (const item of dc) {
-    const qty = Number(item?.quantity) || 0;
-    if (qty > base) {
-      return `Each DC qty cannot exceed job quantity (${base})`;
-    }
-  }
-  const delivered = calcDcDeliveredQty(dc);
-  if (delivered > base) {
-    return `Total DC delivered qty (${delivered}) cannot exceed job quantity (${base})`;
-  }
-  return null;
+  return Math.round((total - calcDcDeliveredQty(dc)) * 1e4) / 1e4;
 }
 function normalizeDcItems(dc, jobFields = {}) {
   if (!Array.isArray(dc)) return [];
@@ -96531,10 +96516,6 @@ router2.post("/", async (req, res) => {
     if (!await validateCustomer(req, customer)) {
       return res.status(400).json({ error: "Invalid customer" });
     }
-    const dcError = getDcQuantityError(req.body.quantity, req.body.dc);
-    if (req.body.isDC && dcError) {
-      return res.status(400).json({ error: dcError });
-    }
     const companyId = getCompanyIdForSave(req);
     if (!companyId) {
       return res.status(400).json({ error: "Your account has no company. Please contact admin." });
@@ -96585,10 +96566,6 @@ router2.put("/:id", async (req, res) => {
     }
     if (!String(merged.projectName).trim()) {
       return res.status(400).json({ error: "Project name is required" });
-    }
-    const dcError = getDcQuantityError(merged.quantity, merged.dc);
-    if (merged.isDC && dcError) {
-      return res.status(400).json({ error: dcError });
     }
     const updates = buildJobPayload(merged);
     const job = await Job_default.findOneAndUpdate(jobScope(req), updates, { new: true }).populate("customer", "firstName lastName");
