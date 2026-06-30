@@ -5,6 +5,33 @@ function escapeRegex(value) {
   return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
+function parseExactDimensionPair(term) {
+  const match = String(term).trim().match(/^(\d+(?:\.\d+)?)\s+(\d+(?:\.\d+)?)$/);
+  if (!match) return null;
+  return { widthMm: Number(match[1]), lengthMm: Number(match[2]) };
+}
+
+function buildTextSearchOr(term, scope) {
+  const regex = new RegExp(escapeRegex(term), 'i');
+  return Customer.find({
+    ...scope,
+    $or: [
+      { firstName: regex },
+      { lastName: regex },
+      { email: regex },
+      { phone: regex },
+    ],
+  }).distinct('_id').then((customerIds) => [
+    { projectName: regex },
+    { model: regex },
+    { billNo: regex },
+    { jobNumber: regex },
+    { pixel: regex },
+    { 'dc.billNo': regex },
+    ...(customerIds.length ? [{ customer: { $in: customerIds } }] : []),
+  ]);
+}
+
 function parseDayStart(dateStr) {
   const [y, m, d] = dateStr.split('-').map(Number);
   return new Date(y, m - 1, d, 0, 0, 0, 0);
@@ -37,26 +64,13 @@ export async function buildJobsFilter(req) {
 
   const term = search?.trim();
   if (term) {
-    const regex = new RegExp(escapeRegex(term), 'i');
-    const customerIds = await Customer.find({
-      ...scope,
-      $or: [
-        { firstName: regex },
-        { lastName: regex },
-        { email: regex },
-        { phone: regex },
-      ],
-    }).distinct('_id');
-
-    filter.$or = [
-      { projectName: regex },
-      { model: regex },
-      { billNo: regex },
-      { jobNumber: regex },
-      { pixel: regex },
-      { 'dc.billNo': regex },
-      ...(customerIds.length ? [{ customer: { $in: customerIds } }] : []),
-    ];
+    const exactPair = parseExactDimensionPair(term);
+    if (exactPair) {
+      filter.widthMm = exactPair.widthMm;
+      filter.lengthMm = exactPair.lengthMm;
+    } else {
+      filter.$or = await buildTextSearchOr(term, scope);
+    }
   }
 
   return filter;

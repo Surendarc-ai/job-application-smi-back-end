@@ -24,10 +24,6 @@ if [[ "$CLIENT_ORIGINS" != *"job-application-smi-front-end.vercel.app"* ]]; then
   CLIENT_ORIGINS="${CLIENT_ORIGINS},https://job-application-smi-front-end.vercel.app"
 fi
 
-if [[ -z "${BACKUP_CRON_SCHEDULE:-}" ]]; then
-  BACKUP_CRON_SCHEDULE='cron(30 19 * * ? *)'
-fi
-
 sam build
 sam deploy \
   --no-confirm-changeset \
@@ -41,5 +37,4 @@ sam deploy \
     "SmtpPort=${SMTP_PORT:-587}" \
     "SmtpUser=${SMTP_USER:-}" \
     "SmtpPass=${SMTP_PASS:-}" \
-    "SmtpSecure=${SMTP_SECURE:-false}" \
-    "ParameterKey=BackupCronSchedule,ParameterValue=${BACKUP_CRON_SCHEDULE}"
+    "SmtpSecure=${SMTP_SECURE:-false}"
