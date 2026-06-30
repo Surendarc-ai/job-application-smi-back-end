@@ -1,11 +1,13 @@
 import { Router } from 'express';
-import { authMiddleware } from '../middleware/auth.js';
+import { authMiddleware, requireRole } from '../middleware/auth.js';
+import { ROLE } from '../constants/roles.js';
 import { exportCompanyBackup, restoreCompanyBackup } from '../utils/backupService.js';
 import { emailBackupForRequest } from '../utils/scheduledBackup.js';
 import { isBackupEmailConfigured, getDefaultBackupRecipients } from '../utils/emailService.js';
 
 const router = Router();
 router.use(authMiddleware);
+router.use(requireRole(ROLE.SUPER_ADMIN));
 
 router.get('/export', async (req, res) => {
   try {

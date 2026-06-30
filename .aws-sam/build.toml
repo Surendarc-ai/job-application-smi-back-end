@@ -28,4 +28,26 @@ External = ["@aws-sdk/*"]
 
 
 
+
+
+[function_build_definitions.43864f4c-2914-474f-9a7c-1be00ae30cf4]
+codeuri = "/Users/lap21016/job_appli/job-application-smi/job-application-smi-back-end"
+runtime = "nodejs20.x"
+architecture = "arm64"
+handler = "backupCron.handler"
+manifest_hash = ""
+packagetype = "Zip"
+functions = ["BackupCronFunction"]
+
+[function_build_definitions.43864f4c-2914-474f-9a7c-1be00ae30cf4.metadata]
+BuildMethod = "esbuild"
+
+[function_build_definitions.43864f4c-2914-474f-9a7c-1be00ae30cf4.metadata.BuildProperties]
+Minify = false
+Target = "es2022"
+Sourcemap = false
+EntryPoints = ["backupCron.js"]
+External = ["@aws-sdk/*"]
+
+
 [layer_build_definitions]
