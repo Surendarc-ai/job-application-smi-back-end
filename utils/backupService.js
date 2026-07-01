@@ -1,13 +1,23 @@
 import mongoose from 'mongoose';
 import * as XLSX from 'xlsx';
+import Company from '../models/Company.js';
 import Customer from '../models/Customer.js';
+import Item from '../models/Item.js';
 import Job from '../models/Job.js';
 import ProductModel from '../models/ProductModel.js';
+import Role from '../models/Role.js';
+import User from '../models/User.js';
 import { getScopeFilter, getCompanyIdForSave } from './companyScope.js';
 
 const SHEETS = {
+  companies: 'Companies',
   customers: 'Customers',
+  items: 'Items',
   jobs: 'Jobs',
+  productModels: 'Product_Models',
+  roles: 'Roles',
+  users: 'Users',
+  // Legacy sheet names used by company restore
   models: 'Models',
 };
 
@@ -66,35 +76,76 @@ function customerName(customer) {
   return '';
 }
 
-export async function exportCompanyBackupByScope(scope) {
-  const [customers, jobs, models] = await Promise.all([
+function refId(value) {
+  if (!value) return '';
+  return String(value._id || value);
+}
+
+export async function exportBackupByScope(scope = {}) {
+  const [
+    companies,
+    customers,
+    items,
+    jobs,
+    models,
+    roles,
+    users,
+  ] = await Promise.all([
+    Company.find(scope.company_id ? { _id: scope.company_id } : {}).sort({ name: 1 }).lean(),
     Customer.find(scope).sort({ createdAt: 1 }).lean(),
+    Item.find(scope).sort({ createdAt: 1 }).lean(),
     Job.find(scope).populate('customer', 'firstName lastName').sort({ date: -1 }).lean(),
     ProductModel.find(scope).sort({ name: 1 }).lean(),
+    Role.find({}).sort({ name: 1 }).lean(),
+    User.find(scope.company_id ? { company_id: scope.company_id } : {}).select('-password').sort({ username: 1 }).lean(),
   ]);
+
+  const companyRows = companies.map((c) => ({
+    _id: String(c._id),
+    name: c.name || '',
+    createdAt: formatDate(c.createdAt),
+    updatedAt: formatDate(c.updatedAt),
+  }));
 
   const customerRows = customers.map((c) => ({
     _id: String(c._id),
+    company_id: refId(c.company_id),
     firstName: c.firstName || '',
     lastName: c.lastName || '',
     email: c.email || '',
     phone: c.phone || '',
     address: c.address || '',
     gstNumber: c.gstNumber || '',
+    userId: refId(c.userId),
     createdAt: formatDate(c.createdAt),
     updatedAt: formatDate(c.updatedAt),
   }));
 
+  const itemRows = items.map((i) => ({
+    _id: String(i._id),
+    company_id: refId(i.company_id),
+    material: i.material || '',
+    thickness: i.thickness ?? 0,
+    runningMeterRate: i.runningMeterRate ?? 0,
+    piercingRate: i.piercingRate ?? 0,
+    userId: refId(i.userId),
+    createdAt: formatDate(i.createdAt),
+    updatedAt: formatDate(i.updatedAt),
+  }));
+
   const modelRows = models.map((m) => ({
     _id: String(m._id),
+    company_id: refId(m.company_id),
     name: m.name || '',
     description: m.description || '',
+    userId: refId(m.userId),
     createdAt: formatDate(m.createdAt),
     updatedAt: formatDate(m.updatedAt),
   }));
 
   const jobRows = jobs.map((j) => ({
     _id: String(j._id),
+    company_id: refId(j.company_id),
     date: formatDate(j.date),
     customerId: String(j.customer?._id || j.customer || ''),
     customerName: customerName(j.customer),
@@ -115,24 +166,57 @@ export async function exportCompanyBackupByScope(scope) {
     totalAmount: j.totalAmount ?? 0,
     remainingDeliverQty: j.remainingDeliverQty ?? 0,
     paymentStatus: j.paymentStatus || 'Non-Billed',
+    userId: refId(j.userId),
     createdAt: formatDate(j.createdAt),
     updatedAt: formatDate(j.updatedAt),
   }));
 
+  const roleRows = roles.map((r) => ({
+    _id: String(r._id),
+    name: r.name || '',
+    createdAt: formatDate(r.createdAt),
+    updatedAt: formatDate(r.updatedAt),
+  }));
+
+  const userRows = users.map((u) => ({
+    _id: String(u._id),
+    username: u.username || '',
+    roleId: refId(u.role_id),
+    companyId: refId(u.company_id),
+    createdAt: formatDate(u.createdAt),
+    updatedAt: formatDate(u.updatedAt),
+  }));
+
   const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(companyRows), SHEETS.companies);
   XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(customerRows), SHEETS.customers);
-  XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(modelRows), SHEETS.models);
+  XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(itemRows), SHEETS.items);
   XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(jobRows), SHEETS.jobs);
+  XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(modelRows), SHEETS.productModels);
+  XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(roleRows), SHEETS.roles);
+  XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(userRows), SHEETS.users);
 
   const buffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
   return {
     buffer,
     counts: {
+      companies: companyRows.length,
       customers: customerRows.length,
-      models: modelRows.length,
+      items: itemRows.length,
       jobs: jobRows.length,
+      product_models: modelRows.length,
+      roles: roleRows.length,
+      users: userRows.length,
     },
   };
+}
+
+export async function exportFullBackup() {
+  return exportBackupByScope({});
+}
+
+export async function exportCompanyBackupByScope(scope) {
+  return exportBackupByScope(scope);
 }
 
 export async function exportCompanyBackup(req) {
@@ -258,7 +342,9 @@ export async function restoreCompanyBackup(req, fileBuffer) {
 
   const workbook = XLSX.read(fileBuffer, { type: 'buffer' });
   const customerRows = sheetRows(workbook, SHEETS.customers);
-  const modelRows = sheetRows(workbook, SHEETS.models);
+  const modelRows = sheetRows(workbook, SHEETS.productModels).length
+    ? sheetRows(workbook, SHEETS.productModels)
+    : sheetRows(workbook, SHEETS.models);
   const jobRows = sheetRows(workbook, SHEETS.jobs);
 
   const stats = {

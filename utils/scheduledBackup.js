@@ -1,71 +1,67 @@
 import fs from 'fs';
 import path from 'path';
 import Company from '../models/Company.js';
-import { exportCompanyBackupByScope } from './backupService.js';
+import { exportFullBackup, exportCompanyBackupByScope } from './backupService.js';
 import { getDefaultBackupRecipients, isBackupEmailConfigured, sendBackupEmail } from './emailService.js';
 import { getScopeFilter } from './companyScope.js';
 
 function safeFilenamePart(value) {
-  return String(value || 'company')
+  return String(value || 'backup')
     .trim()
     .replace(/[^\w.-]+/g, '-')
     .replace(/-+/g, '-')
-    .replace(/^-|-$/g, '') || 'company';
+    .replace(/^-|-$/g, '') || 'backup';
 }
 
-async function emailCompanyBackup({ companyName, scope, recipients }) {
-  const { buffer, counts } = await exportCompanyBackupByScope(scope);
+function formatCounts(counts) {
+  return [
+    `Companies: ${counts.companies ?? 0}`,
+    `Customers: ${counts.customers ?? 0}`,
+    `Items: ${counts.items ?? 0}`,
+    `Jobs: ${counts.jobs ?? 0}`,
+    `Product models: ${counts.product_models ?? 0}`,
+    `Roles: ${counts.roles ?? 0}`,
+    `Users: ${counts.users ?? 0}`,
+  ].join('\n');
+}
+
+async function emailFullBackup(recipients) {
+  const { buffer, counts } = await exportFullBackup();
   const date = new Date().toISOString().slice(0, 10);
-  const filename = `job-app-backup-${safeFilenamePart(companyName)}-${date}.xlsx`;
+  const filename = `job-app-backup-full-${date}.xlsx`;
 
   await sendBackupEmail({
     to: recipients.join(', '),
-    subject: `Job App backup - ${companyName} - ${date}`,
+    subject: `Job App full backup - ${date}`,
     text: [
-      `Automated backup for ${companyName}.`,
-      `Customers: ${counts.customers}`,
-      `Models: ${counts.models}`,
-      `Jobs: ${counts.jobs}`,
+      'Automated full database backup.',
+      formatCounts(counts),
       '',
-      'Keep this file safe. You can upload it in the Backup page if data needs to be restored.',
+      'Sheets: Companies, Customers, Items, Jobs, Product_Models, Roles, Users',
+      'Keep this file safe. User passwords are not included.',
     ].join('\n'),
     attachmentBuffer: buffer,
     attachmentFilename: filename,
   });
 
-  return { company: companyName, filename, counts };
+  return { filename, counts };
 }
 
-async function saveCompanyBackup({ companyName, scope, outputDir }) {
-  const { buffer, counts } = await exportCompanyBackupByScope(scope);
+async function saveFullBackup(outputDir) {
+  const { buffer, counts } = await exportFullBackup();
   const date = new Date().toISOString().slice(0, 10);
-  const filename = `job-app-backup-${safeFilenamePart(companyName)}-${date}.xlsx`;
+  const filename = `job-app-backup-full-${date}.xlsx`;
   const filePath = path.join(outputDir, filename);
 
   fs.mkdirSync(outputDir, { recursive: true });
   fs.writeFileSync(filePath, buffer);
 
-  return { company: companyName, filename, filePath, counts };
+  return { filename, filePath, counts };
 }
 
 export async function runLocalBackup(outputDir = path.join(process.cwd(), 'backups')) {
-  const companies = await Company.find({}).sort({ name: 1 }).lean();
-  const targets = companies.length
-    ? companies
-    : [{ _id: null, name: 'All Data' }];
-
-  const results = [];
-  for (const company of targets) {
-    const scope = company._id ? { company_id: company._id } : {};
-    const saved = await saveCompanyBackup({
-      companyName: company.name,
-      scope,
-      outputDir,
-    });
-    results.push(saved);
-  }
-
-  return { outputDir, saved: results.length, results };
+  const saved = await saveFullBackup(outputDir);
+  return { outputDir, saved: 1, results: [saved] };
 }
 
 export async function runScheduledBackup() {
@@ -74,23 +70,8 @@ export async function runScheduledBackup() {
   }
 
   const recipients = getDefaultBackupRecipients();
-  const companies = await Company.find({}).sort({ name: 1 }).lean();
-  const targets = companies.length
-    ? companies
-    : [{ _id: null, name: 'All Data' }];
-
-  const results = [];
-  for (const company of targets) {
-    const scope = company._id ? { company_id: company._id } : {};
-    const sent = await emailCompanyBackup({
-      companyName: company.name,
-      scope,
-      recipients,
-    });
-    results.push(sent);
-  }
-
-  return { sent: results.length, results };
+  const sent = await emailFullBackup(recipients);
+  return { sent: 1, results: [sent] };
 }
 
 export async function emailBackupForRequest(req) {
@@ -106,14 +87,27 @@ export async function emailBackupForRequest(req) {
     companyName = company?.name || companyName;
   }
 
-  const sent = await emailCompanyBackup({
-    companyName,
-    scope,
-    recipients,
+  const { buffer, counts } = await exportCompanyBackupByScope(scope);
+  const date = new Date().toISOString().slice(0, 10);
+  const filename = `job-app-backup-${safeFilenamePart(companyName)}-${date}.xlsx`;
+
+  await sendBackupEmail({
+    to: recipients.join(', '),
+    subject: `Job App backup - ${companyName} - ${date}`,
+    text: [
+      `Backup for ${companyName}.`,
+      formatCounts(counts),
+      '',
+      'Keep this file safe. You can upload it in the Backup page if data needs to be restored.',
+    ].join('\n'),
+    attachmentBuffer: buffer,
+    attachmentFilename: filename,
   });
 
   return {
     message: `Backup emailed to ${recipients.join(', ')}`,
-    ...sent,
+    company: companyName,
+    filename,
+    counts,
   };
 }

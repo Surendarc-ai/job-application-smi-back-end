@@ -16,7 +16,8 @@ async function main() {
 
   console.log(`Emailed ${result.sent} backup file(s)`);
   for (const item of result.results) {
-    console.log(`  - ${item.company}: ${item.filename} (${item.counts.customers} customers, ${item.counts.models} models, ${item.counts.jobs} jobs)`);
+    const c = item.counts || {};
+    console.log(`  - ${item.filename}: companies ${c.companies ?? 0}, customers ${c.customers ?? 0}, items ${c.items ?? 0}, jobs ${c.jobs ?? 0}, product_models ${c.product_models ?? 0}, roles ${c.roles ?? 0}, users ${c.users ?? 0}`);
   }
 }
 
