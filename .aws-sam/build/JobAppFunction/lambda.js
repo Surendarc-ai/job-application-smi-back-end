@@ -141391,8 +141391,8 @@ var MM2_TO_SQFT = 1 / 92903.04;
 function roundTotSizeSqFt(value) {
   const num = Number(value) || 0;
   const base = Math.round(num * 1e4) / 1e4;
-  const decimalPart = Math.round(base % 1 * 100);
-  if (decimalPart >= 90) {
+  const fractional = base - Math.floor(base);
+  if (fractional >= 0.5) {
     return Math.ceil(base - 1e-9);
   }
   return Math.round(base * 100) / 100;
@@ -141473,6 +141473,31 @@ function buildJobPayload(body) {
 function escapeRegex(value) {
   return String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
+function parseExactDimensionPair(term) {
+  const match = String(term).trim().match(/^(\d+(?:\.\d+)?)\s+(\d+(?:\.\d+)?)$/);
+  if (!match) return null;
+  return { widthMm: Number(match[1]), lengthMm: Number(match[2]) };
+}
+function buildTextSearchOr(term, scope) {
+  const regex = new RegExp(escapeRegex(term), "i");
+  return Customer_default.find({
+    ...scope,
+    $or: [
+      { firstName: regex },
+      { lastName: regex },
+      { email: regex },
+      { phone: regex }
+    ]
+  }).distinct("_id").then((customerIds) => [
+    { projectName: regex },
+    { model: regex },
+    { billNo: regex },
+    { jobNumber: regex },
+    { pixel: regex },
+    { "dc.billNo": regex },
+    ...customerIds.length ? [{ customer: { $in: customerIds } }] : []
+  ]);
+}
 function parseDayStart(dateStr) {
   const [y, m, d] = dateStr.split("-").map(Number);
   return new Date(y, m - 1, d, 0, 0, 0, 0);
@@ -141499,25 +141524,13 @@ async function buildJobsFilter(req) {
   }
   const term = search?.trim();
   if (term) {
-    const regex = new RegExp(escapeRegex(term), "i");
-    const customerIds = await Customer_default.find({
-      ...scope,
-      $or: [
-        { firstName: regex },
-        { lastName: regex },
-        { email: regex },
-        { phone: regex }
-      ]
-    }).distinct("_id");
-    filter.$or = [
-      { projectName: regex },
-      { model: regex },
-      { billNo: regex },
-      { jobNumber: regex },
-      { pixel: regex },
-      { "dc.billNo": regex },
-      ...customerIds.length ? [{ customer: { $in: customerIds } }] : []
-    ];
+    const exactPair = parseExactDimensionPair(term);
+    if (exactPair) {
+      filter.widthMm = exactPair.widthMm;
+      filter.lengthMm = exactPair.lengthMm;
+    } else {
+      filter.$or = await buildTextSearchOr(term, scope);
+    }
   }
   return filter;
 }

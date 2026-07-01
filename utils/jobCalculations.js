@@ -60,11 +60,15 @@ export function normalizeDcItems(dc, jobFields = {}) {
         return billNo ? { date: null, billNo, quantity: 0, amount: 0 } : null;
       }
       const quantity = Number(item.quantity) || 0;
+      const calculated = calcDcLineAmount(jobFields, quantity);
+      const amount = item.amount !== undefined && item.amount !== null && item.amount !== ''
+        ? Math.round(Number(item.amount) * 100) / 100
+        : calculated;
       return {
         date: item.date ? new Date(item.date) : null,
         billNo: String(item.billNo || '').trim(),
         quantity,
-        amount: calcDcLineAmount(jobFields, quantity),
+        amount,
       };
     })
     .filter((item) => item && (item.billNo || item.quantity));
@@ -73,6 +77,9 @@ export function normalizeDcItems(dc, jobFields = {}) {
 export function buildJobPayload(body) {
   const totals = calcJobTotals(body);
   const dcItems = body.isDC ? normalizeDcItems(body.dc, body) : [];
+  const totalAmount = body.totalAmount !== undefined && body.totalAmount !== null && body.totalAmount !== ''
+    ? Math.round(Number(body.totalAmount) * 100) / 100
+    : totals.totalAmount;
   return {
     date: new Date(body.date),
     customer: body.customer,
@@ -89,6 +96,7 @@ export function buildJobPayload(body) {
     widthMm: Number(body.widthMm) || 0,
     pricePerSqft: Number(body.pricePerSqft) || 0,
     ...totals,
+    totalAmount,
     paymentStatus: body.paymentStatus || 'Non-Billed',
   };
 }
