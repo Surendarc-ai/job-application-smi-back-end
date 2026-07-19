@@ -18,7 +18,7 @@ Parameters:
   BackupEmailTo:
     Type: String
     Default: ''
-    Description: Comma-separated emails to receive scheduled backups
+    Description: Comma-separated emails for optional manual backup emails
   BackupEmailFrom:
     Type: String
     Default: ''
@@ -49,9 +49,14 @@ Parameters:
     Type: String
     Default: 'cron(30 19 * * ? *)'
     Description: EventBridge schedule for daily backup (UTC). Default is about 1:00 AM IST.
-
-Conditions:
-  BackupCronEnabled: !Not [!Equals [!Ref BackupEmailTo, '']]
+  BackupS3Bucket:
+    Type: String
+    Default: jobapplication-exportbucket-ilcivydagjzc
+    Description: Existing S3 bucket for daily Excel backups
+  BackupS3Prefix:
+    Type: String
+    Default: smi
+    Description: S3 key prefix (folder) under the bucket, e.g. smi/
 
 Globals:
   Function:
@@ -84,6 +89,8 @@ Resources:
           SMTP_USER: !Ref SmtpUser
           SMTP_PASS: !Ref SmtpPass
           SMTP_SECURE: !Ref SmtpSecure
+          BACKUP_S3_BUCKET: !Ref BackupS3Bucket
+          BACKUP_S3_PREFIX: !Ref BackupS3Prefix
       Events:
         Api:
           Type: HttpApi
@@ -110,30 +117,27 @@ Resources:
 
   BackupCronFunction:
     Type: AWS::Serverless::Function
-    Condition: BackupCronEnabled
     Properties:
       Handler: backupCron.handler
       CodeUri: .
-      Description: Scheduled MongoDB backup email
+      Description: Scheduled MongoDB backup to S3
       Timeout: 120
       MemorySize: 1024
       Environment:
         Variables:
           MONGODB_URI: !Ref MongoDbUri
           MONGODB_TIMEOUT_MS: '30000'
-          BACKUP_EMAIL_TO: !Ref BackupEmailTo
-          BACKUP_EMAIL_FROM: !Ref BackupEmailFrom
-          SMTP_HOST: !Ref SmtpHost
-          SMTP_PORT: !Ref SmtpPort
-          SMTP_USER: !Ref SmtpUser
-          SMTP_PASS: !Ref SmtpPass
-          SMTP_SECURE: !Ref SmtpSecure
+          BACKUP_S3_BUCKET: !Ref BackupS3Bucket
+          BACKUP_S3_PREFIX: !Ref BackupS3Prefix
+      Policies:
+        - S3WritePolicy:
+            BucketName: !Ref BackupS3Bucket
       Events:
         DailyBackup:
           Type: Schedule
           Properties:
             Schedule: !Ref BackupCronSchedule
-            Description: Daily Excel backup email
+            Description: Daily Excel backup to S3
             Enabled: true
     Metadata:
       BuildMethod: esbuild
@@ -143,8 +147,6 @@ Resources:
         Sourcemap: false
         EntryPoints:
           - backupCron.js
-        External:
-          - '@aws-sdk/*'
 
 Outputs:
   ApiUrl:
@@ -153,3 +155,9 @@ Outputs:
   HealthCheck:
     Description: Health check URL
     Value: !Sub 'https://${JobAppApi}.execute-api.${AWS::Region}.amazonaws.com/api/health'
+  BackupBucketName:
+    Description: S3 bucket for daily Excel backups
+    Value: !Ref BackupS3Bucket
+  BackupS3Path:
+    Description: S3 folder where daily backups are written
+    Value: !Sub 's3://${BackupS3Bucket}/${BackupS3Prefix}/'

@@ -82517,10 +82517,10 @@ var require_connection2 = __commonJS({
         });
       });
     };
-    async function _wrapUserTransaction(fn, session, mongoose9) {
+    async function _wrapUserTransaction(fn, session, mongoose10) {
       try {
-        const res = mongoose9.transactionAsyncLocalStorage == null ? await fn(session) : await new Promise((resolve) => {
-          mongoose9.transactionAsyncLocalStorage.run(
+        const res = mongoose10.transactionAsyncLocalStorage == null ? await fn(session) : await new Promise((resolve) => {
+          mongoose10.transactionAsyncLocalStorage.run(
             { session },
             () => resolve(fn(session))
           );
@@ -95645,7 +95645,7 @@ var require_mongoose = __commonJS({
     Mongoose.prototype.ConnectionStates = STATES;
     Mongoose.prototype.driver = driver;
     Mongoose.prototype.setDriver = function setDriver(driver2) {
-      const _mongoose = this instanceof Mongoose ? this : mongoose9;
+      const _mongoose = this instanceof Mongoose ? this : mongoose10;
       if (_mongoose.__driver === driver2) {
         return _mongoose;
       }
@@ -95663,7 +95663,7 @@ var require_mongoose = __commonJS({
         }
       }
       if (driver2.SchemaTypes != null) {
-        Object.assign(mongoose9.Schema.Types, driver2.SchemaTypes);
+        Object.assign(mongoose10.Schema.Types, driver2.SchemaTypes);
       }
       const Connection = driver2.Connection;
       const oldDefaultConnection = _mongoose.connections[0];
@@ -95681,7 +95681,7 @@ var require_mongoose = __commonJS({
       return _mongoose;
     };
     Mongoose.prototype.set = function getsetOptions(key, value) {
-      const _mongoose = this instanceof Mongoose ? this : mongoose9;
+      const _mongoose = this instanceof Mongoose ? this : mongoose10;
       if (arguments.length === 1 && typeof key !== "object") {
         if (VALID_OPTIONS.indexOf(key) === -1) {
           const error2 = new SetOptionError();
@@ -95742,7 +95742,7 @@ var require_mongoose = __commonJS({
     };
     Mongoose.prototype.get = Mongoose.prototype.set;
     Mongoose.prototype.createConnection = function createConnection(uri, options) {
-      const _mongoose = this instanceof Mongoose ? this : mongoose9;
+      const _mongoose = this instanceof Mongoose ? this : mongoose10;
       const Connection = _mongoose.__driver.Connection;
       const conn = new Connection(_mongoose);
       _mongoose.connections.push(conn);
@@ -95757,7 +95757,7 @@ var require_mongoose = __commonJS({
       if (typeof options === "function" || arguments.length >= 3 && typeof arguments[2] === "function") {
         throw new MongooseError("Mongoose.prototype.connect() no longer accepts a callback");
       }
-      const _mongoose = this instanceof Mongoose ? this : mongoose9;
+      const _mongoose = this instanceof Mongoose ? this : mongoose10;
       if (_mongoose.connection == null) {
         _createDefaultConnection(_mongoose);
       }
@@ -95768,7 +95768,7 @@ var require_mongoose = __commonJS({
       if (arguments.length >= 1 && typeof arguments[0] === "function") {
         throw new MongooseError("Mongoose.prototype.disconnect() no longer accepts a callback");
       }
-      const _mongoose = this instanceof Mongoose ? this : mongoose9;
+      const _mongoose = this instanceof Mongoose ? this : mongoose10;
       const remaining = _mongoose.connections.length;
       if (remaining <= 0) {
         return;
@@ -95776,18 +95776,18 @@ var require_mongoose = __commonJS({
       await Promise.all(_mongoose.connections.map((conn) => conn.close()));
     };
     Mongoose.prototype.startSession = function startSession() {
-      const _mongoose = this instanceof Mongoose ? this : mongoose9;
+      const _mongoose = this instanceof Mongoose ? this : mongoose10;
       return _mongoose.connection.startSession.apply(_mongoose.connection, arguments);
     };
     Mongoose.prototype.pluralize = function pluralize(fn) {
-      const _mongoose = this instanceof Mongoose ? this : mongoose9;
+      const _mongoose = this instanceof Mongoose ? this : mongoose10;
       if (arguments.length > 0) {
         _mongoose._pluralize = fn;
       }
       return _mongoose._pluralize;
     };
     Mongoose.prototype.model = function model(name, schema, collection, options) {
-      const _mongoose = this instanceof Mongoose ? this : mongoose9;
+      const _mongoose = this instanceof Mongoose ? this : mongoose10;
       if (typeof schema === "string") {
         collection = schema;
         schema = false;
@@ -95835,7 +95835,7 @@ var require_mongoose = __commonJS({
       return model2;
     };
     Mongoose.prototype._model = function _model(name, schema, collection, options) {
-      const _mongoose = this instanceof Mongoose ? this : mongoose9;
+      const _mongoose = this instanceof Mongoose ? this : mongoose10;
       let model;
       if (typeof name === "function") {
         model = name;
@@ -95874,25 +95874,25 @@ var require_mongoose = __commonJS({
       return model;
     };
     Mongoose.prototype.deleteModel = function deleteModel(name) {
-      const _mongoose = this instanceof Mongoose ? this : mongoose9;
+      const _mongoose = this instanceof Mongoose ? this : mongoose10;
       _mongoose.connection.deleteModel(name);
       delete _mongoose.models[name];
       return _mongoose;
     };
     Mongoose.prototype.modelNames = function modelNames() {
-      const _mongoose = this instanceof Mongoose ? this : mongoose9;
+      const _mongoose = this instanceof Mongoose ? this : mongoose10;
       const names = Object.keys(_mongoose.models);
       return names;
     };
     Mongoose.prototype._applyPlugins = function _applyPlugins(schema, options) {
-      const _mongoose = this instanceof Mongoose ? this : mongoose9;
+      const _mongoose = this instanceof Mongoose ? this : mongoose10;
       options = options || {};
       options.applyPluginsToDiscriminators = _mongoose.options && _mongoose.options.applyPluginsToDiscriminators || false;
       options.applyPluginsToChildSchemas = typeof (_mongoose.options && _mongoose.options.applyPluginsToChildSchemas) === "boolean" ? _mongoose.options.applyPluginsToChildSchemas : true;
       applyPlugins(schema, _mongoose.plugins, options, "$globalPluginsApplied");
     };
     Mongoose.prototype.plugin = function plugin(fn, opts) {
-      const _mongoose = this instanceof Mongoose ? this : mongoose9;
+      const _mongoose = this instanceof Mongoose ? this : mongoose10;
       _mongoose.plugins.push([fn, opts]);
       return _mongoose;
     };
@@ -95942,14 +95942,14 @@ var require_mongoose = __commonJS({
     Mongoose.prototype.DocumentProvider = require_documentProvider();
     Mongoose.prototype.ObjectId = SchemaTypes.ObjectId;
     Mongoose.prototype.isValidObjectId = function isValidObjectId(v) {
-      const _mongoose = this instanceof Mongoose ? this : mongoose9;
+      const _mongoose = this instanceof Mongoose ? this : mongoose10;
       return _mongoose.Types.ObjectId.isValid(v);
     };
     Mongoose.prototype.isObjectIdOrHexString = function isObjectIdOrHexString(v) {
       return isBsonType(v, "ObjectId") || typeof v === "string" && objectIdHexRegexp.test(v);
     };
     Mongoose.prototype.syncIndexes = function syncIndexes(options) {
-      const _mongoose = this instanceof Mongoose ? this : mongoose9;
+      const _mongoose = this instanceof Mongoose ? this : mongoose10;
       return _mongoose.connection.syncIndexes(options);
     };
     Mongoose.prototype.Decimal128 = SchemaTypes.Decimal128;
@@ -95969,15 +95969,15 @@ var require_mongoose = __commonJS({
     Mongoose.prototype.skipMiddlewareFunction = Kareem.skipWrappedFunction;
     Mongoose.prototype.overwriteMiddlewareResult = Kareem.overwriteResult;
     Mongoose.prototype.omitUndefined = require_omitUndefined();
-    function _createDefaultConnection(mongoose10) {
-      if (mongoose10.connection) {
+    function _createDefaultConnection(mongoose11) {
+      if (mongoose11.connection) {
         return;
       }
-      const conn = mongoose10.createConnection();
+      const conn = mongoose11.createConnection();
       conn[defaultConnectionSymbol] = true;
-      conn.models = mongoose10.models;
+      conn.models = mongoose11.models;
     }
-    var mongoose9 = module2.exports = exports2 = new Mongoose({
+    var mongoose10 = module2.exports = exports2 = new Mongoose({
       [defaultMongooseSymbol]: true
     });
   }
@@ -95989,10 +95989,10 @@ var require_lib9 = __commonJS({
     "use strict";
     var mongodbDriver = require_node_mongodb_native();
     require_driver().set(mongodbDriver);
-    var mongoose9 = require_mongoose();
-    mongoose9.setDriver(mongodbDriver);
-    mongoose9.Mongoose.prototype.mongo = require_lib6();
-    module2.exports = mongoose9;
+    var mongoose10 = require_mongoose();
+    mongoose10.setDriver(mongodbDriver);
+    mongoose10.Mongoose.prototype.mongo = require_lib6();
+    module2.exports = mongoose10;
   }
 });
 
@@ -96000,55 +96000,55 @@ var require_lib9 = __commonJS({
 var require_mongoose2 = __commonJS({
   "node_modules/mongoose/index.js"(exports2, module2) {
     "use strict";
-    var mongoose9 = require_lib9();
-    module2.exports = mongoose9;
-    module2.exports.default = mongoose9;
-    module2.exports.mongoose = mongoose9;
-    module2.exports.cast = mongoose9.cast;
-    module2.exports.STATES = mongoose9.STATES;
-    module2.exports.setDriver = mongoose9.setDriver;
-    module2.exports.set = mongoose9.set;
-    module2.exports.get = mongoose9.get;
-    module2.exports.createConnection = mongoose9.createConnection;
-    module2.exports.connect = mongoose9.connect;
-    module2.exports.disconnect = mongoose9.disconnect;
-    module2.exports.startSession = mongoose9.startSession;
-    module2.exports.pluralize = mongoose9.pluralize;
-    module2.exports.model = mongoose9.model;
-    module2.exports.deleteModel = mongoose9.deleteModel;
-    module2.exports.modelNames = mongoose9.modelNames;
-    module2.exports.plugin = mongoose9.plugin;
-    module2.exports.connections = mongoose9.connections;
-    module2.exports.version = mongoose9.version;
-    module2.exports.Aggregate = mongoose9.Aggregate;
-    module2.exports.Mongoose = mongoose9.Mongoose;
-    module2.exports.Schema = mongoose9.Schema;
-    module2.exports.SchemaType = mongoose9.SchemaType;
-    module2.exports.SchemaTypes = mongoose9.SchemaTypes;
-    module2.exports.VirtualType = mongoose9.VirtualType;
-    module2.exports.Types = mongoose9.Types;
-    module2.exports.Query = mongoose9.Query;
-    module2.exports.Model = mongoose9.Model;
-    module2.exports.Document = mongoose9.Document;
-    module2.exports.ObjectId = mongoose9.ObjectId;
-    module2.exports.isValidObjectId = mongoose9.isValidObjectId;
-    module2.exports.isObjectIdOrHexString = mongoose9.isObjectIdOrHexString;
-    module2.exports.syncIndexes = mongoose9.syncIndexes;
-    module2.exports.Decimal128 = mongoose9.Decimal128;
-    module2.exports.Mixed = mongoose9.Mixed;
-    module2.exports.Date = mongoose9.Date;
-    module2.exports.Number = mongoose9.Number;
-    module2.exports.Error = mongoose9.Error;
-    module2.exports.MongooseError = mongoose9.MongooseError;
-    module2.exports.now = mongoose9.now;
-    module2.exports.CastError = mongoose9.CastError;
-    module2.exports.SchemaTypeOptions = mongoose9.SchemaTypeOptions;
-    module2.exports.mongo = mongoose9.mongo;
-    module2.exports.mquery = mongoose9.mquery;
-    module2.exports.sanitizeFilter = mongoose9.sanitizeFilter;
-    module2.exports.trusted = mongoose9.trusted;
-    module2.exports.skipMiddlewareFunction = mongoose9.skipMiddlewareFunction;
-    module2.exports.overwriteMiddlewareResult = mongoose9.overwriteMiddlewareResult;
+    var mongoose10 = require_lib9();
+    module2.exports = mongoose10;
+    module2.exports.default = mongoose10;
+    module2.exports.mongoose = mongoose10;
+    module2.exports.cast = mongoose10.cast;
+    module2.exports.STATES = mongoose10.STATES;
+    module2.exports.setDriver = mongoose10.setDriver;
+    module2.exports.set = mongoose10.set;
+    module2.exports.get = mongoose10.get;
+    module2.exports.createConnection = mongoose10.createConnection;
+    module2.exports.connect = mongoose10.connect;
+    module2.exports.disconnect = mongoose10.disconnect;
+    module2.exports.startSession = mongoose10.startSession;
+    module2.exports.pluralize = mongoose10.pluralize;
+    module2.exports.model = mongoose10.model;
+    module2.exports.deleteModel = mongoose10.deleteModel;
+    module2.exports.modelNames = mongoose10.modelNames;
+    module2.exports.plugin = mongoose10.plugin;
+    module2.exports.connections = mongoose10.connections;
+    module2.exports.version = mongoose10.version;
+    module2.exports.Aggregate = mongoose10.Aggregate;
+    module2.exports.Mongoose = mongoose10.Mongoose;
+    module2.exports.Schema = mongoose10.Schema;
+    module2.exports.SchemaType = mongoose10.SchemaType;
+    module2.exports.SchemaTypes = mongoose10.SchemaTypes;
+    module2.exports.VirtualType = mongoose10.VirtualType;
+    module2.exports.Types = mongoose10.Types;
+    module2.exports.Query = mongoose10.Query;
+    module2.exports.Model = mongoose10.Model;
+    module2.exports.Document = mongoose10.Document;
+    module2.exports.ObjectId = mongoose10.ObjectId;
+    module2.exports.isValidObjectId = mongoose10.isValidObjectId;
+    module2.exports.isObjectIdOrHexString = mongoose10.isObjectIdOrHexString;
+    module2.exports.syncIndexes = mongoose10.syncIndexes;
+    module2.exports.Decimal128 = mongoose10.Decimal128;
+    module2.exports.Mixed = mongoose10.Mixed;
+    module2.exports.Date = mongoose10.Date;
+    module2.exports.Number = mongoose10.Number;
+    module2.exports.Error = mongoose10.Error;
+    module2.exports.MongooseError = mongoose10.MongooseError;
+    module2.exports.now = mongoose10.now;
+    module2.exports.CastError = mongoose10.CastError;
+    module2.exports.SchemaTypeOptions = mongoose10.SchemaTypeOptions;
+    module2.exports.mongo = mongoose10.mongo;
+    module2.exports.mquery = mongoose10.mquery;
+    module2.exports.sanitizeFilter = mongoose10.sanitizeFilter;
+    module2.exports.trusted = mongoose10.trusted;
+    module2.exports.skipMiddlewareFunction = mongoose10.skipMiddlewareFunction;
+    module2.exports.overwriteMiddlewareResult = mongoose10.overwriteMiddlewareResult;
   }
 });
 
@@ -141397,6 +141397,15 @@ function roundTotSizeSqFt(value) {
   }
   return Math.round(base * 100) / 100;
 }
+function roundTotalAmount(value) {
+  const num = Number(value) || 0;
+  const base = Math.round(num * 1e4) / 1e4;
+  const fractional = base - Math.floor(base);
+  if (fractional >= 0.8) {
+    return Math.ceil(base - 1e-9);
+  }
+  return Math.round(base * 100) / 100;
+}
 function calcJobTotals({ quantity, lengthMm, widthMm, pricePerSqft }) {
   const q = Number(quantity) || 0;
   const l = Number(lengthMm) || 0;
@@ -141405,12 +141414,12 @@ function calcJobTotals({ quantity, lengthMm, widthMm, pricePerSqft }) {
   const totSizeSqFt = l * w * MM2_TO_SQFT;
   const roundedTotSizeSqFt = roundTotSizeSqFt(totSizeSqFt);
   const totSqft = roundedTotSizeSqFt * q;
-  const totalAmount = totSqft * price;
+  const totalAmount = roundTotalAmount(totSqft * price);
   return {
     totSizeSqFt: Math.round(totSizeSqFt * 1e4) / 1e4,
     roundedTotSizeSqFt,
     totSqft: Math.round(totSqft * 1e4) / 1e4,
-    totalAmount: Math.round(totalAmount * 100) / 100
+    totalAmount
   };
 }
 function calcDcLineAmount({ lengthMm, widthMm, pricePerSqft, totSizeSqFt, roundedTotSizeSqFt }, dcQty) {
@@ -141420,7 +141429,7 @@ function calcDcLineAmount({ lengthMm, widthMm, pricePerSqft, totSizeSqFt, rounde
   const q = Number(dcQty) || 0;
   const rawSize = totSizeSqFt ?? l * w * MM2_TO_SQFT;
   const roundedSize = roundedTotSizeSqFt ?? roundTotSizeSqFt(rawSize);
-  return Math.round(roundedSize * q * price * 100) / 100;
+  return roundTotalAmount(roundedSize * q * price);
 }
 function calcDcDeliveredQty(dc) {
   if (!Array.isArray(dc)) return 0;
@@ -141438,17 +141447,20 @@ function normalizeDcItems(dc, jobFields = {}) {
       return billNo ? { date: null, billNo, quantity: 0, amount: 0 } : null;
     }
     const quantity = Number(item.quantity) || 0;
+    const calculated = calcDcLineAmount(jobFields, quantity);
+    const amount = item.amount !== void 0 && item.amount !== null && item.amount !== "" ? roundTotalAmount(item.amount) : calculated;
     return {
       date: item.date ? new Date(item.date) : null,
       billNo: String(item.billNo || "").trim(),
       quantity,
-      amount: calcDcLineAmount(jobFields, quantity)
+      amount
     };
   }).filter((item) => item && (item.billNo || item.quantity));
 }
 function buildJobPayload(body) {
   const totals = calcJobTotals(body);
   const dcItems = body.isDC ? normalizeDcItems(body.dc, body) : [];
+  const totalAmount = body.totalAmount !== void 0 && body.totalAmount !== null && body.totalAmount !== "" ? roundTotalAmount(body.totalAmount) : totals.totalAmount;
   return {
     date: new Date(body.date),
     customer: body.customer,
@@ -141465,6 +141477,7 @@ function buildJobPayload(body) {
     widthMm: Number(body.widthMm) || 0,
     pricePerSqft: Number(body.pricePerSqft) || 0,
     ...totals,
+    totalAmount,
     paymentStatus: body.paymentStatus || "Non-Billed"
   };
 }
@@ -141828,11 +141841,35 @@ var models_default = router4;
 var import_express5 = __toESM(require_express3(), 1);
 
 // utils/backupService.js
-var import_mongoose7 = __toESM(require_mongoose2(), 1);
+var import_mongoose8 = __toESM(require_mongoose2(), 1);
 var XLSX = __toESM(require_xlsx(), 1);
+
+// models/Item.js
+var import_mongoose7 = __toESM(require_mongoose2(), 1);
+var itemSchema = new import_mongoose7.default.Schema({
+  material: {
+    type: String,
+    required: true,
+    enum: ["MS", "SS", "ALUMINIUM", "GI", "BRASS"]
+  },
+  thickness: { type: Number, required: true },
+  runningMeterRate: { type: Number, required: true },
+  piercingRate: { type: Number, required: true },
+  userId: { type: import_mongoose7.default.Schema.Types.ObjectId, ref: "User", required: true },
+  company_id: { type: import_mongoose7.default.Schema.Types.ObjectId, ref: "Company", default: null }
+}, { timestamps: true });
+var Item_default = import_mongoose7.default.model("Item", itemSchema);
+
+// utils/backupService.js
 var SHEETS = {
+  companies: "Companies",
   customers: "Customers",
+  items: "Items",
   jobs: "Jobs",
+  productModels: "Product_Models",
+  roles: "Roles",
+  users: "Users",
+  // Legacy sheet names used by company restore
   models: "Models"
 };
 function formatDate(value) {
@@ -141867,8 +141904,8 @@ function parseJson(value, fallback) {
 }
 function toObjectId(value) {
   const id = String(value || "").trim();
-  if (!id || !import_mongoose7.default.Types.ObjectId.isValid(id)) return null;
-  return new import_mongoose7.default.Types.ObjectId(id);
+  if (!id || !import_mongoose8.default.Types.ObjectId.isValid(id)) return null;
+  return new import_mongoose8.default.Types.ObjectId(id);
 }
 function sheetRows(workbook, sheetName) {
   const sheet = workbook.Sheets[sheetName];
@@ -141882,32 +141919,70 @@ function customerName(customer) {
   }
   return "";
 }
-async function exportCompanyBackupByScope(scope) {
-  const [customers, jobs, models] = await Promise.all([
+function refId(value) {
+  if (!value) return "";
+  return String(value._id || value);
+}
+async function exportBackupByScope(scope = {}) {
+  const [
+    companies,
+    customers,
+    items,
+    jobs,
+    models,
+    roles,
+    users
+  ] = await Promise.all([
+    Company_default.find(scope.company_id ? { _id: scope.company_id } : {}).sort({ name: 1 }).lean(),
     Customer_default.find(scope).sort({ createdAt: 1 }).lean(),
+    Item_default.find(scope).sort({ createdAt: 1 }).lean(),
     Job_default.find(scope).populate("customer", "firstName lastName").sort({ date: -1 }).lean(),
-    ProductModel_default.find(scope).sort({ name: 1 }).lean()
+    ProductModel_default.find(scope).sort({ name: 1 }).lean(),
+    Role_default.find({}).sort({ name: 1 }).lean(),
+    User_default.find(scope.company_id ? { company_id: scope.company_id } : {}).select("-password").sort({ username: 1 }).lean()
   ]);
+  const companyRows = companies.map((c) => ({
+    _id: String(c._id),
+    name: c.name || "",
+    createdAt: formatDate(c.createdAt),
+    updatedAt: formatDate(c.updatedAt)
+  }));
   const customerRows = customers.map((c) => ({
     _id: String(c._id),
+    company_id: refId(c.company_id),
     firstName: c.firstName || "",
     lastName: c.lastName || "",
     email: c.email || "",
     phone: c.phone || "",
     address: c.address || "",
     gstNumber: c.gstNumber || "",
+    userId: refId(c.userId),
     createdAt: formatDate(c.createdAt),
     updatedAt: formatDate(c.updatedAt)
   }));
+  const itemRows = items.map((i) => ({
+    _id: String(i._id),
+    company_id: refId(i.company_id),
+    material: i.material || "",
+    thickness: i.thickness ?? 0,
+    runningMeterRate: i.runningMeterRate ?? 0,
+    piercingRate: i.piercingRate ?? 0,
+    userId: refId(i.userId),
+    createdAt: formatDate(i.createdAt),
+    updatedAt: formatDate(i.updatedAt)
+  }));
   const modelRows = models.map((m) => ({
     _id: String(m._id),
+    company_id: refId(m.company_id),
     name: m.name || "",
     description: m.description || "",
+    userId: refId(m.userId),
     createdAt: formatDate(m.createdAt),
     updatedAt: formatDate(m.updatedAt)
   }));
   const jobRows = jobs.map((j) => ({
     _id: String(j._id),
+    company_id: refId(j.company_id),
     date: formatDate(j.date),
     customerId: String(j.customer?._id || j.customer || ""),
     customerName: customerName(j.customer),
@@ -141928,22 +142003,48 @@ async function exportCompanyBackupByScope(scope) {
     totalAmount: j.totalAmount ?? 0,
     remainingDeliverQty: j.remainingDeliverQty ?? 0,
     paymentStatus: j.paymentStatus || "Non-Billed",
+    userId: refId(j.userId),
     createdAt: formatDate(j.createdAt),
     updatedAt: formatDate(j.updatedAt)
   }));
+  const roleRows = roles.map((r) => ({
+    _id: String(r._id),
+    name: r.name || "",
+    createdAt: formatDate(r.createdAt),
+    updatedAt: formatDate(r.updatedAt)
+  }));
+  const userRows = users.map((u) => ({
+    _id: String(u._id),
+    username: u.username || "",
+    roleId: refId(u.role_id),
+    companyId: refId(u.company_id),
+    createdAt: formatDate(u.createdAt),
+    updatedAt: formatDate(u.updatedAt)
+  }));
   const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(companyRows), SHEETS.companies);
   XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(customerRows), SHEETS.customers);
-  XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(modelRows), SHEETS.models);
+  XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(itemRows), SHEETS.items);
   XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(jobRows), SHEETS.jobs);
+  XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(modelRows), SHEETS.productModels);
+  XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(roleRows), SHEETS.roles);
+  XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(userRows), SHEETS.users);
   const buffer = XLSX.write(workbook, { type: "buffer", bookType: "xlsx" });
   return {
     buffer,
     counts: {
+      companies: companyRows.length,
       customers: customerRows.length,
-      models: modelRows.length,
-      jobs: jobRows.length
+      items: itemRows.length,
+      jobs: jobRows.length,
+      product_models: modelRows.length,
+      roles: roleRows.length,
+      users: userRows.length
     }
   };
+}
+async function exportCompanyBackupByScope(scope) {
+  return exportBackupByScope(scope);
 }
 async function exportCompanyBackup(req) {
   return exportCompanyBackupByScope(getScopeFilter(req));
@@ -142051,7 +142152,7 @@ async function restoreCompanyBackup(req, fileBuffer) {
   }
   const workbook = XLSX.read(fileBuffer, { type: "buffer" });
   const customerRows = sheetRows(workbook, SHEETS.customers);
-  const modelRows = sheetRows(workbook, SHEETS.models);
+  const modelRows = sheetRows(workbook, SHEETS.productModels).length ? sheetRows(workbook, SHEETS.productModels) : sheetRows(workbook, SHEETS.models);
   const jobRows = sheetRows(workbook, SHEETS.jobs);
   const stats = {
     customers: { restored: 0, skipped: 0 },
@@ -142171,27 +142272,18 @@ function getDefaultBackupRecipients() {
 
 // utils/scheduledBackup.js
 function safeFilenamePart(value) {
-  return String(value || "company").trim().replace(/[^\w.-]+/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "") || "company";
+  return String(value || "backup").trim().replace(/[^\w.-]+/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "") || "backup";
 }
-async function emailCompanyBackup({ companyName, scope, recipients }) {
-  const { buffer, counts } = await exportCompanyBackupByScope(scope);
-  const date = (/* @__PURE__ */ new Date()).toISOString().slice(0, 10);
-  const filename = `job-app-backup-${safeFilenamePart(companyName)}-${date}.xlsx`;
-  await sendBackupEmail({
-    to: recipients.join(", "),
-    subject: `Job App backup - ${companyName} - ${date}`,
-    text: [
-      `Automated backup for ${companyName}.`,
-      `Customers: ${counts.customers}`,
-      `Models: ${counts.models}`,
-      `Jobs: ${counts.jobs}`,
-      "",
-      "Keep this file safe. You can upload it in the Backup page if data needs to be restored."
-    ].join("\n"),
-    attachmentBuffer: buffer,
-    attachmentFilename: filename
-  });
-  return { company: companyName, filename, counts };
+function formatCounts(counts) {
+  return [
+    `Companies: ${counts.companies ?? 0}`,
+    `Customers: ${counts.customers ?? 0}`,
+    `Items: ${counts.items ?? 0}`,
+    `Jobs: ${counts.jobs ?? 0}`,
+    `Product models: ${counts.product_models ?? 0}`,
+    `Roles: ${counts.roles ?? 0}`,
+    `Users: ${counts.users ?? 0}`
+  ].join("\n");
 }
 async function emailBackupForRequest(req) {
   if (!isBackupEmailConfigured()) {
@@ -142204,14 +142296,26 @@ async function emailBackupForRequest(req) {
     const company = await Company_default.findById(req.companyId).select("name").lean();
     companyName = company?.name || companyName;
   }
-  const sent = await emailCompanyBackup({
-    companyName,
-    scope,
-    recipients
+  const { buffer, counts } = await exportCompanyBackupByScope(scope);
+  const date = (/* @__PURE__ */ new Date()).toISOString().slice(0, 10);
+  const filename = `job-app-backup-${safeFilenamePart(companyName)}-${date}.xlsx`;
+  await sendBackupEmail({
+    to: recipients.join(", "),
+    subject: `Job App backup - ${companyName} - ${date}`,
+    text: [
+      `Backup for ${companyName}.`,
+      formatCounts(counts),
+      "",
+      "Keep this file safe. You can upload it in the Backup page if data needs to be restored."
+    ].join("\n"),
+    attachmentBuffer: buffer,
+    attachmentFilename: filename
   });
   return {
     message: `Backup emailed to ${recipients.join(", ")}`,
-    ...sent
+    company: companyName,
+    filename,
+    counts
   };
 }
 
@@ -142272,13 +142376,13 @@ var backup_default = router5;
 
 // db.js
 var import_dotenv = __toESM(require_main(), 1);
-var import_mongoose8 = __toESM(require_mongoose2(), 1);
+var import_mongoose9 = __toESM(require_mongoose2(), 1);
 import_dotenv.default.config({ path: "env" });
 var connected = false;
 var connectPromise = null;
 async function connectDB() {
-  if (connected && import_mongoose8.default.connection.readyState === 1) {
-    return import_mongoose8.default.connection;
+  if (connected && import_mongoose9.default.connection.readyState === 1) {
+    return import_mongoose9.default.connection;
   }
   if (connectPromise) {
     return connectPromise;
@@ -142290,12 +142394,12 @@ async function connectDB() {
   if (uri.includes("<db_password>")) {
     throw new Error("Replace <db_password> in env with your MongoDB Atlas password.");
   }
-  connectPromise = import_mongoose8.default.connect(uri, {
+  connectPromise = import_mongoose9.default.connect(uri, {
     maxPoolSize: 10,
     serverSelectionTimeoutMS: Number(process.env.MONGODB_TIMEOUT_MS || 3e4)
   }).then((conn) => {
     connected = true;
-    console.log("MongoDB connected to", import_mongoose8.default.connection.name);
+    console.log("MongoDB connected to", import_mongoose9.default.connection.name);
     return conn;
   }).catch((err) => {
     connectPromise = null;

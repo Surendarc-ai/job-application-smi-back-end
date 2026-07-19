@@ -25,26 +25,18 @@ function formatCounts(counts) {
   ].join('\n');
 }
 
-async function emailFullBackup(recipients) {
+function isBackupS3Configured() {
+  return Boolean(String(process.env.BACKUP_S3_BUCKET || '').trim());
+}
+
+async function uploadFullBackupToS3() {
+  const { uploadBackupToS3 } = await import('./s3Backup.js');
   const { buffer, counts } = await exportFullBackup();
   const date = new Date().toISOString().slice(0, 10);
   const filename = `job-app-backup-full-${date}.xlsx`;
+  const uploaded = await uploadBackupToS3({ buffer, filename });
 
-  await sendBackupEmail({
-    to: recipients.join(', '),
-    subject: `Job App full backup - ${date}`,
-    text: [
-      'Automated full database backup.',
-      formatCounts(counts),
-      '',
-      'Sheets: Companies, Customers, Items, Jobs, Product_Models, Roles, Users',
-      'Keep this file safe. User passwords are not included.',
-    ].join('\n'),
-    attachmentBuffer: buffer,
-    attachmentFilename: filename,
-  });
-
-  return { filename, counts };
+  return { filename, counts, ...uploaded };
 }
 
 async function saveFullBackup(outputDir) {
@@ -65,13 +57,12 @@ export async function runLocalBackup(outputDir = path.join(process.cwd(), 'backu
 }
 
 export async function runScheduledBackup() {
-  if (!isBackupEmailConfigured()) {
-    return { skipped: true, reason: 'Backup email is not configured' };
+  if (!isBackupS3Configured()) {
+    return { skipped: true, reason: 'Backup S3 is not configured. Set BACKUP_S3_BUCKET.' };
   }
 
-  const recipients = getDefaultBackupRecipients();
-  const sent = await emailFullBackup(recipients);
-  return { sent: 1, results: [sent] };
+  const uploaded = await uploadFullBackupToS3();
+  return { uploaded: 1, results: [uploaded] };
 }
 
 export async function emailBackupForRequest(req) {

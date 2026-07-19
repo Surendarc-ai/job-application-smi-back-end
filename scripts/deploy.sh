@@ -37,4 +37,6 @@ sam deploy \
     "SmtpPort=${SMTP_PORT:-587}" \
     "SmtpUser=${SMTP_USER:-}" \
     "SmtpPass=${SMTP_PASS:-}" \
-    "SmtpSecure=${SMTP_SECURE:-false}"
+    "SmtpSecure=${SMTP_SECURE:-false}" \
+    "BackupS3Bucket=${BACKUP_S3_BUCKET:-jobapplication-exportbucket-ilcivydagjzc}" \
+    "BackupS3Prefix=${BACKUP_S3_PREFIX:-smi}"

@@ -10,9 +10,10 @@
     "sam:build": "sam build",
     "sam:deploy": "bash scripts/deploy.sh",
     "backup:local": "node scripts/backupCron.js",
-    "backup:email": "node scripts/backupEmail.js"
+    "backup:s3": "node scripts/backupS3.js"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1090.0",
     "@vendia/serverless-express": "^4.12.6",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
