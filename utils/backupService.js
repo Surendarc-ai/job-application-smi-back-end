@@ -294,6 +294,7 @@ async function upsertJob(row, req, companyId, customerIds) {
     billNo: String(item?.billNo || '').trim(),
     quantity: parseNumber(item?.quantity, 0),
     amount: parseNumber(item?.amount, 0),
+    billCompleted: parseBool(item?.billCompleted),
   }));
 
   const id = toObjectId(row._id);

@@ -102,6 +102,7 @@ router.put('/:id', async (req, res) => {
           billNo: item.billNo || '',
           quantity: item.quantity || 0,
           amount: item.amount || 0,
+          billCompleted: !!item.billCompleted,
         }))
         : [],
       pixel: existing.pixel,

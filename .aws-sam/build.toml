@@ -33,7 +33,8 @@ External = ["@aws-sdk/*"]
 
 
 
-[function_build_definitions.43864f4c-2914-474f-9a7c-1be00ae30cf4]
+
+[function_build_definitions.03ed0924-0e4a-4d19-8496-470b4fec1b1b]
 codeuri = "/Users/lap21016/job_appli/job-application-smi/job-application-smi-back-end"
 runtime = "nodejs20.x"
 architecture = "arm64"
@@ -42,18 +43,13 @@ manifest_hash = ""
 packagetype = "Zip"
 functions = ["BackupCronFunction"]
 
-[function_build_definitions.43864f4c-2914-474f-9a7c-1be00ae30cf4.metadata]
+[function_build_definitions.03ed0924-0e4a-4d19-8496-470b4fec1b1b.metadata]
 BuildMethod = "esbuild"
 
-[function_build_definitions.43864f4c-2914-474f-9a7c-1be00ae30cf4.metadata.BuildProperties]
+[function_build_definitions.03ed0924-0e4a-4d19-8496-470b4fec1b1b.metadata.BuildProperties]
 Minify = false
 Target = "es2022"
 Sourcemap = false
 EntryPoints = ["backupCron.js"]
-External = ["@aws-sdk/*"]
-
-
-
-
 
 [layer_build_definitions]

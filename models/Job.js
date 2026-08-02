@@ -5,6 +5,7 @@ const dcItemSchema = new mongoose.Schema({
   billNo: { type: String, default: '' },
   quantity: { type: Number, default: 0 },
   amount: { type: Number, default: 0 },
+  billCompleted: { type: Boolean, default: false },
 }, { _id: false });
 
 const jobSchema = new mongoose.Schema({

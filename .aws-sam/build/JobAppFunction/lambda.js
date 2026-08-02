@@ -141392,7 +141392,7 @@ function roundTotSizeSqFt(value) {
   const num = Number(value) || 0;
   const base = Math.round(num * 1e4) / 1e4;
   const fractional = base - Math.floor(base);
-  if (fractional >= 0.5) {
+  if (fractional >= 0.8) {
     return Math.ceil(base - 1e-9);
   }
   return Math.round(base * 100) / 100;

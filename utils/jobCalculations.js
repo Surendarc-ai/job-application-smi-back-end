@@ -67,7 +67,7 @@ export function normalizeDcItems(dc, jobFields = {}) {
     .map((item) => {
       if (typeof item === 'string') {
         const billNo = item.trim();
-        return billNo ? { date: null, billNo, quantity: 0, amount: 0 } : null;
+        return billNo ? { date: null, billNo, quantity: 0, amount: 0, billCompleted: false } : null;
       }
       const quantity = Number(item.quantity) || 0;
       const calculated = calcDcLineAmount(jobFields, quantity);
@@ -79,6 +79,7 @@ export function normalizeDcItems(dc, jobFields = {}) {
         billNo: String(item.billNo || '').trim(),
         quantity,
         amount,
+        billCompleted: !!item.billCompleted,
       };
     })
     .filter((item) => item && (item.billNo || item.quantity));
