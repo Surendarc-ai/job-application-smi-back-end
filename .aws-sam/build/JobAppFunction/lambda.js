@@ -141298,7 +141298,8 @@ var dcItemSchema = new import_mongoose4.default.Schema({
   date: { type: Date, default: null },
   billNo: { type: String, default: "" },
   quantity: { type: Number, default: 0 },
-  amount: { type: Number, default: 0 }
+  amount: { type: Number, default: 0 },
+  billCompleted: { type: Boolean, default: false }
 }, { _id: false });
 var jobSchema = new import_mongoose4.default.Schema({
   date: { type: Date, required: true },
@@ -141444,7 +141445,7 @@ function normalizeDcItems(dc, jobFields = {}) {
   return dc.map((item) => {
     if (typeof item === "string") {
       const billNo = item.trim();
-      return billNo ? { date: null, billNo, quantity: 0, amount: 0 } : null;
+      return billNo ? { date: null, billNo, quantity: 0, amount: 0, billCompleted: false } : null;
     }
     const quantity = Number(item.quantity) || 0;
     const calculated = calcDcLineAmount(jobFields, quantity);
@@ -141453,7 +141454,8 @@ function normalizeDcItems(dc, jobFields = {}) {
       date: item.date ? new Date(item.date) : null,
       billNo: String(item.billNo || "").trim(),
       quantity,
-      amount
+      amount,
+      billCompleted: !!item.billCompleted
     };
   }).filter((item) => item && (item.billNo || item.quantity));
 }
@@ -141632,7 +141634,8 @@ router2.put("/:id", async (req, res) => {
         date: item.date || null,
         billNo: item.billNo || "",
         quantity: item.quantity || 0,
-        amount: item.amount || 0
+        amount: item.amount || 0,
+        billCompleted: !!item.billCompleted
       })) : [],
       pixel: existing.pixel,
       jobNumber: existing.jobNumber,
@@ -142108,7 +142111,8 @@ async function upsertJob(row, req, companyId, customerIds) {
     date: parseDate(item?.date),
     billNo: String(item?.billNo || "").trim(),
     quantity: parseNumber(item?.quantity, 0),
-    amount: parseNumber(item?.amount, 0)
+    amount: parseNumber(item?.amount, 0),
+    billCompleted: parseBool(item?.billCompleted)
   }));
   const id = toObjectId(row._id);
   const payload = {

@@ -148034,7 +148034,8 @@ var dcItemSchema = new import_mongoose5.default.Schema({
   date: { type: Date, default: null },
   billNo: { type: String, default: "" },
   quantity: { type: Number, default: 0 },
-  amount: { type: Number, default: 0 }
+  amount: { type: Number, default: 0 },
+  billCompleted: { type: Boolean, default: false }
 }, { _id: false });
 var jobSchema = new import_mongoose5.default.Schema({
   date: { type: Date, required: true },

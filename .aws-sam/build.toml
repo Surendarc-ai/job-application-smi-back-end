@@ -34,6 +34,7 @@ External = ["@aws-sdk/*"]
 
 
 
+
 [function_build_definitions.03ed0924-0e4a-4d19-8496-470b4fec1b1b]
 codeuri = "/Users/lap21016/job_appli/job-application-smi/job-application-smi-back-end"
 runtime = "nodejs20.x"
@@ -51,5 +52,6 @@ Minify = false
 Target = "es2022"
 Sourcemap = false
 EntryPoints = ["backupCron.js"]
+
 
 [layer_build_definitions]
